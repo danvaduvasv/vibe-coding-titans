@@ -2,9 +2,11 @@ import { useState } from 'react';
 import type { Map as LeafletMap } from 'leaflet';
 import { useGeolocation } from './hooks/useGeolocation';
 import { useHistoricalSpots } from './hooks/useHistoricalSpots';
+import { useFoodBeverageSpots } from './hooks/useFoodBeverageSpots';
 import SatelliteMap from './components/SatelliteMap';
 import LoadingSpinner from './components/LoadingSpinner';
 import MapSearchButton from './components/MapSearchButton';
+import SearchControls from './components/SearchControls';
 import './App.css';
 
 function App() {
@@ -17,10 +19,20 @@ function App() {
     clearSpots
   } = useHistoricalSpots();
   
+  const {
+    spots: foodBeverageSpots,
+    loading: foodLoading,
+    error: foodError,
+    searchSpots: searchFoodSpots,
+    clearSpots: clearFoodSpots
+  } = useFoodBeverageSpots();
+  
   const [map, setMap] = useState<LeafletMap | null>(null);
   const [showBounds, setShowBounds] = useState(false);
   const [searchCenter, setSearchCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [searchRadius, setSearchRadius] = useState<number>(500); // Default 500m radius
+  const [showHistoricalSpots, setShowHistoricalSpots] = useState(true);
+  const [showFoodBeverageSpots, setShowFoodBeverageSpots] = useState(true);
 
   const handleMapReady = (mapInstance: LeafletMap) => {
     setMap(mapInstance);
@@ -31,10 +43,12 @@ function App() {
     setSearchCenter({ lat: centerLat, lng: centerLng });
     setShowBounds(true);
     searchSpots(centerLat, centerLng, searchRadius);
+    searchFoodSpots(centerLat, centerLng, searchRadius);
   };
 
   const handleClearSpots = () => {
     clearSpots();
+    clearFoodSpots();
     setShowBounds(false);
     setSearchCenter(null);
   };
@@ -95,17 +109,25 @@ function App() {
                 )}
                 {historicalSpots.length > 0 && (
                   <div className="coord-item">
-                    <span className="coord-label">Historical Spots:</span>
+                    <span className="coord-label">Tourism Attractions:</span>
                     <span className="coord-value">
                       {historicalSpots.length} found
                     </span>
                   </div>
                 )}
+                {foodBeverageSpots.length > 0 && (
+                  <div className="coord-item">
+                    <span className="coord-label">Food & Beverage:</span>
+                    <span className="coord-value">
+                      {foodBeverageSpots.length} found
+                    </span>
+                  </div>
+                )}
               </div>
               
-              {spotsError && (
+              {(spotsError || foodError) && (
                 <div className="spots-error">
-                  <p className="error-text">⚠️ {spotsError}</p>
+                  <p className="error-text">⚠️ {spotsError || foodError}</p>
                   <p className="error-hint">Try searching again with the search button below</p>
                 </div>
               )}
@@ -116,36 +138,31 @@ function App() {
               longitude={longitude} 
               accuracy={accuracy}
               historicalSpots={historicalSpots}
+              foodBeverageSpots={foodBeverageSpots}
               onMapReady={handleMapReady}
-                                 showBounds={showBounds}
-                   searchCenter={searchCenter}
-                   searchRadius={searchRadius}
-                 />
+              showBounds={showBounds}
+              searchCenter={searchCenter}
+              searchRadius={searchRadius}
+              showHistoricalSpots={showHistoricalSpots}
+              showFoodBeverageSpots={showFoodBeverageSpots}
+            />
                  
-                 <div className="search-controls">
-                   <div className="radius-control">
-                     <label htmlFor="search-radius">Search Radius:</label>
-                     <select 
-                       id="search-radius"
-                       value={searchRadius} 
-                       onChange={(e) => setSearchRadius(Number(e.target.value))}
-                       className="radius-select"
-                     >
-                       <option value={250}>250m</option>
-                       <option value={500}>500m</option>
-                       <option value={750}>750m</option>
-                       <option value={1000}>1km</option>
-                       <option value={1500}>1.5km</option>
-                       <option value={2000}>2km</option>
-                     </select>
-                   </div>
-                 </div>
+                 <SearchControls
+                   searchRadius={searchRadius}
+                   onRadiusChange={setSearchRadius}
+                   showHistoricalSpots={showHistoricalSpots}
+                   showFoodBeverageSpots={showFoodBeverageSpots}
+                   onHistoricalSpotsToggle={setShowHistoricalSpots}
+                   onFoodBeverageSpotsToggle={setShowFoodBeverageSpots}
+                   historicalSpotsCount={historicalSpots.length}
+                   foodBeverageSpotsCount={foodBeverageSpots.length}
+                 />
                  
                                   <MapSearchButton
                    map={map}
                    onSearch={handleSearch}
-                   loading={spotsLoading}
-                   spotsCount={historicalSpots.length}
+                   loading={spotsLoading || foodLoading}
+                   spotsCount={historicalSpots.length + foodBeverageSpots.length}
                    onClear={handleClearSpots}
                    showBounds={showBounds}
                    onToggleBounds={handleToggleBounds}

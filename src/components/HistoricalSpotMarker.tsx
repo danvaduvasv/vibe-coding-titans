@@ -42,10 +42,10 @@ const createPlusIcon = (category: string) => {
       " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
         <span style="
           color: white;
-          font-size: 18px;
+          font-size: 16px;
           font-weight: bold;
           line-height: 1;
-        ">+</span>
+        ">🏛️</span>
       </div>
     `,
     className: 'historical-spot-marker',

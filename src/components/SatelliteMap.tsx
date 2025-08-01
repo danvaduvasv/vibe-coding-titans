@@ -3,9 +3,11 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import type { Map as LeafletMap } from 'leaflet';
 import HistoricalSpotMarker from './HistoricalSpotMarker';
+import FoodBeverageMarker from './FoodBeverageMarker';
 import BoundsOverlay from './BoundsOverlay';
 import MapInstanceCapture from './MapInstanceCapture';
 import type { HistoricalSpot } from '../types/HistoricalSpot';
+import type { FoodBeverageSpot } from '../types/FoodBeverageSpot';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default markers in react-leaflet
@@ -21,10 +23,13 @@ interface SatelliteMapProps {
   longitude: number;
   accuracy?: number | null;
   historicalSpots?: HistoricalSpot[];
+  foodBeverageSpots?: FoodBeverageSpot[];
   onMapReady?: (map: LeafletMap) => void;
   showBounds?: boolean;
   searchCenter?: { lat: number; lng: number } | null;
   searchRadius?: number;
+  showHistoricalSpots?: boolean;
+  showFoodBeverageSpots?: boolean;
 }
 
 const SatelliteMap: React.FC<SatelliteMapProps> = ({ 
@@ -32,10 +37,13 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
   longitude, 
   accuracy, 
   historicalSpots = [], 
+  foodBeverageSpots = [],
   onMapReady, 
   showBounds = false,
   searchCenter = null,
-  searchRadius = 500
+  searchRadius = 500,
+  showHistoricalSpots = true,
+  showFoodBeverageSpots = true
 }) => {
 
   return (
@@ -92,12 +100,20 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
               )}
 
         {/* Render historical spots */}
-        {historicalSpots.map((spot) => (
+        {showHistoricalSpots && historicalSpots.map((spot) => (
           <HistoricalSpotMarker 
             key={spot.id} 
             spot={spot} 
             userLatitude={latitude}
             userLongitude={longitude}
+          />
+        ))}
+
+        {/* Render food & beverage spots */}
+        {showFoodBeverageSpots && foodBeverageSpots.map((spot) => (
+          <FoodBeverageMarker 
+            key={spot.id} 
+            spot={spot}
           />
         ))}
       </MapContainer>
