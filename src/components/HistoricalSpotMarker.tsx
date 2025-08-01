@@ -4,6 +4,7 @@ import { divIcon } from 'leaflet';
 import { calculateDistance } from '../utils/mapBounds';
 import { getLocationDetails } from '../services/openaiService';
 import OpenAI from 'openai';
+import { createElevenLabsService } from '../services/elevenLabsService';
 import type { HistoricalSpot } from '../types/HistoricalSpot';
 
 interface HistoricalSpotMarkerProps {
@@ -63,7 +64,7 @@ const HistoricalSpotMarker: React.FC<HistoricalSpotMarkerProps> = ({ spot, userL
   const [funFact, setFunFact] = useState<string | null>(null);
   const [historicalSignificance, setHistoricalSignificance] = useState<string | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState<string>('morgan-freeman');
+  const [selectedVoice, setSelectedVoice] = useState<string>('freeman');
   
   const formatDistance = (distance: number): string => {
     if (distance < 1000) {
@@ -125,22 +126,8 @@ const HistoricalSpotMarker: React.FC<HistoricalSpotMarkerProps> = ({ spot, userL
       icon: string;
       description: string;
     }> = {
-      'morgan-freeman': {
-        rate: 0.75,
-        pitch: 0.7,
-        volume: 0.9,
-        preferredNames: ['Microsoft David', 'Google US English Male', 'Alex', 'Daniel'],
-        icon: '🎭',
-        description: 'Morgan Freeman'
-      },
-      'darth-vader': {
-        rate: 0.6,
-        pitch: 0.3,
-        volume: 1.0,
-        preferredNames: ['Microsoft David', 'Google US English Male', 'Daniel'],
-        icon: '⚫',
-        description: 'Darth Vader'
-      },
+
+
       'pinky-pie': {
         rate: 1.4,
         pitch: 1.8,
@@ -156,20 +143,38 @@ const HistoricalSpotMarker: React.FC<HistoricalSpotMarkerProps> = ({ spot, userL
         preferredNames: ['Fred', 'Whisper', 'Microsoft David', 'Alex', 'Bruce', 'Ralph'],
         icon: '🐸',
         description: 'Yoda'
+      },
+      'megatron': {
+        rate: 0.7,
+        pitch: 0.4,
+        volume: 1.0,
+        preferredNames: ['Microsoft David', 'Google US English Male', 'Daniel', 'Alex'],
+        icon: '🤖',
+        description: 'Megatron'
+      },
+      'freeman': {
+        rate: 0.35,
+        pitch: 0.1,
+        volume: 1.0,
+        preferredNames: ['Microsoft David', 'Google US English Male', 'Daniel', 'Alex'],
+        icon: '🎭',
+        description: 'Freeman'
       }
     };
     
-    return configs[voiceType] || configs['morgan-freeman'];
+    return configs[voiceType] || configs['freeman'];
   };
 
   const transformTextForCharacter = async (text: string, voiceType: string): Promise<string> => {
     switch (voiceType) {
-      case 'darth-vader':
-        return `${text}... The dark side of history is strong with this one.`;
       case 'pinky-pie':
         return `Oh my gosh, oh my gosh! ${text} Isn't history just super duper amazing?!`;
       case 'yoda':
         return await transformToYodaSpeak(text);
+      case 'megatron':
+        return await transformToMegatronSpeak(text);
+      case 'freeman':
+        return await transformToFreemanSpeak(text);
       default:
         return text;
     }
@@ -246,6 +251,122 @@ Transform this to Yoda-speak while keeping all the factual information intact:`;
     }
   };
 
+  const transformToMegatronSpeak = async (text: string): Promise<string> => {
+    try {
+      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+      if (!apiKey) {
+        // Fallback to simple transformation if no API key
+        return `${text}. I am Megatron, leader of the Decepticons. This location serves the cause of conquest.`;
+      }
+
+      const openai = new OpenAI({
+        apiKey: apiKey,
+        dangerouslyAllowBrowser: true
+      });
+
+      console.log('Transforming text to Megatron-speak using OpenAI...');
+
+      const prompt = `Transform the following text to sound exactly like Megatron from Transformers would say it. Use Megatron's distinctive speech patterns:
+
+- Use formal, commanding language
+- Add robotic and mechanical terminology
+- Include phrases like "I am Megatron", "Decepticons", "conquest", "superiority"
+- Make it sound authoritative and threatening
+- Use words like "inferior", "superior", "conquest", "destruction"
+- Keep the same factual information but make it sound like Megatron is analyzing the location
+- End with a typical Megatron phrase about conquest or superiority
+
+Original text: "${text}"
+
+Transform this to Megatron-speak while keeping all the factual information intact:`;
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.8,
+        max_tokens: 150
+      });
+
+      const megatronText = completion.choices[0]?.message?.content?.trim();
+      
+      if (megatronText) {
+        console.log('Successfully transformed to Megatron-speak:', megatronText);
+        return megatronText;
+      } else {
+        // Fallback if OpenAI doesn't respond
+        return `${text}. I am Megatron, leader of the Decepticons. This location serves the cause of conquest.`;
+      }
+
+    } catch (error) {
+      console.error('Error transforming text to Megatron-speak:', error);
+      // Fallback to simple transformation
+      return `${text}. I am Megatron, leader of the Decepticons. This location serves the cause of conquest.`;
+    }
+  };
+
+  const transformToFreemanSpeak = async (text: string): Promise<string> => {
+    try {
+      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+      if (!apiKey) {
+        // Fallback to simple transformation if no API key
+        return `${text}. As narrated by Morgan Freeman, this place tells a story of human history.`;
+      }
+
+      const openai = new OpenAI({
+        apiKey: apiKey,
+        dangerouslyAllowBrowser: true
+      });
+
+      console.log('Transforming text to Freeman-speak using OpenAI...');
+
+      const prompt = `Transform the following text to sound exactly like Morgan Freeman would narrate it. Use Morgan Freeman's distinctive narration style:
+
+- Use warm, authoritative, and contemplative tone
+- Add philosophical and reflective elements
+- Include phrases like "As we discover", "In the grand tapestry of history", "This place tells a story"
+- Make it sound like a documentary narration
+- Use words like "remarkable", "extraordinary", "fascinating", "profound"
+- Keep the same factual information but make it sound like Morgan Freeman is narrating a documentary
+- End with a typical Morgan Freeman reflection
+
+Original text: "${text}"
+
+Transform this to Freeman-speak while keeping all the factual information intact:`;
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.8,
+        max_tokens: 150
+      });
+
+      const freemanText = completion.choices[0]?.message?.content?.trim();
+      
+      if (freemanText) {
+        console.log('Successfully transformed to Freeman-speak:', freemanText);
+        return freemanText;
+      } else {
+        // Fallback if OpenAI doesn't respond
+        return `${text}. As narrated by Morgan Freeman, this place tells a story of human history.`;
+      }
+
+    } catch (error) {
+      console.error('Error transforming text to Freeman-speak:', error);
+      // Fallback to simple transformation
+      return `${text}. As narrated by Morgan Freeman, this place tells a story of human history.`;
+    }
+  };
+
   const handleTextToSpeech = async (text: string, type: 'funFact' | 'significance') => {
     // Check if speech synthesis is supported
     if (!('speechSynthesis' in window)) {
@@ -258,14 +379,74 @@ Transform this to Yoda-speak while keeping all the factual information intact:`;
 
     const voiceConfig = getVoiceConfig(selectedVoice);
     
-    // Show loading state for Yoda transformation
+    // Show loading state for transformations
     if (selectedVoice === 'yoda') {
       console.log('Transforming text to authentic Yoda-speak...');
+    } else if (selectedVoice === 'megatron') {
+      console.log('Transforming text to authentic Megatron-speak...');
     }
     
     const transformedText = await transformTextForCharacter(text, selectedVoice);
     
-    // Create speech utterance
+    // Use ElevenLabs for Megatron voice if available
+    if (selectedVoice === 'megatron') {
+      const elevenLabsService = createElevenLabsService();
+      if (elevenLabsService) {
+        try {
+          console.log('Using ElevenLabs for authentic Megatron voice...');
+          
+          // Get Megatron voice ID from environment or find suitable voice
+          const megatronVoiceId = await elevenLabsService.getMegatronVoice();
+          
+          if (megatronVoiceId) {
+            const response = await elevenLabsService.generateSpeech(transformedText, megatronVoiceId, 'eleven_monolingual_v1', {
+              stability: 0.5,
+              similarity_boost: 0.75,
+              speed: 1.0
+            });
+            
+            if (response.audio) {
+              console.log('Playing authentic Megatron voice from ElevenLabs...');
+              elevenLabsService.playAudio(response.audio);
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('ElevenLabs failed, falling back to browser TTS:', error);
+        }
+      }
+    }
+
+    // Use ElevenLabs for Freeman voice if available
+    if (selectedVoice === 'freeman') {
+      const elevenLabsService = createElevenLabsService();
+      if (elevenLabsService) {
+        try {
+          console.log('Using ElevenLabs for authentic Freeman voice...');
+          
+          // Get Freeman voice ID from environment or find suitable voice
+          const freemanVoiceId = await elevenLabsService.getFreemanVoice();
+          
+          if (freemanVoiceId) {
+            const response = await elevenLabsService.generateSpeech(transformedText, freemanVoiceId, 'eleven_monolingual_v1', {
+              stability: 0.95,
+              similarity_boost: 0.98,
+              speed: 0.7
+            });
+            
+            if (response.audio) {
+              console.log('Playing authentic Freeman voice from ElevenLabs...');
+              elevenLabsService.playAudio(response.audio);
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('ElevenLabs failed, falling back to browser TTS:', error);
+        }
+      }
+    }
+    
+    // Fallback to browser speech synthesis
     const utterance = new SpeechSynthesisUtterance(transformedText);
     
     // Find the best voice for selected character
@@ -275,36 +456,44 @@ Transform this to Yoda-speak while keeping all the factual information intact:`;
       voiceConfig.preferredNames.some((name: string) => voice.name.includes(name))
     );
     
-         // Fallback logic based on character
-     if (!bestVoice) {
-       if (selectedVoice === 'pinky-pie') {
-         bestVoice = voices.find(voice => 
-           voice.lang.includes('en') && 
-           (voice.name.toLowerCase().includes('female') || 
-            voice.name.toLowerCase().includes('zira') ||
-            voice.name.toLowerCase().includes('samantha'))
-         );
-       } else if (selectedVoice === 'yoda') {
-         // Look for voices that might sound more hoarse/distinctive for Yoda
-         bestVoice = voices.find(voice => 
-           voice.lang.includes('en') && 
-           (voice.name.toLowerCase().includes('fred') || 
-            voice.name.toLowerCase().includes('whisper') ||
-            voice.name.toLowerCase().includes('bruce') ||
-            voice.name.toLowerCase().includes('ralph') ||
-            voice.name.toLowerCase().includes('novelty'))
-         ) || voices.find(voice => 
-           voice.lang.includes('en') && 
-           voice.name.toLowerCase().includes('male')
-         );
-       } else {
-         bestVoice = voices.find(voice => 
-           voice.lang.includes('en') && 
-           (voice.name.toLowerCase().includes('male') || 
-            voice.name.toLowerCase().includes('david'))
-         );
-       }
-     }
+    // Fallback logic based on character
+    if (!bestVoice) {
+      if (selectedVoice === 'pinky-pie') {
+        bestVoice = voices.find(voice => 
+          voice.lang.includes('en') && 
+          (voice.name.toLowerCase().includes('female') || 
+           voice.name.toLowerCase().includes('zira') ||
+           voice.name.toLowerCase().includes('samantha'))
+        );
+      } else if (selectedVoice === 'yoda') {
+        // Look for voices that might sound more hoarse/distinctive for Yoda
+        bestVoice = voices.find(voice => 
+          voice.lang.includes('en') && 
+          (voice.name.toLowerCase().includes('fred') || 
+           voice.name.toLowerCase().includes('whisper') ||
+           voice.name.toLowerCase().includes('bruce') ||
+           voice.name.toLowerCase().includes('ralph') ||
+           voice.name.toLowerCase().includes('novelty'))
+        ) || voices.find(voice => 
+          voice.lang.includes('en') && 
+          voice.name.toLowerCase().includes('male')
+        );
+      } else if (selectedVoice === 'megatron') {
+        // Look for deep male voices for Megatron
+        bestVoice = voices.find(voice => 
+          voice.lang.includes('en') && 
+          (voice.name.toLowerCase().includes('david') || 
+           voice.name.toLowerCase().includes('microsoft') ||
+           voice.name.toLowerCase().includes('male'))
+        );
+      } else {
+        bestVoice = voices.find(voice => 
+          voice.lang.includes('en') && 
+          (voice.name.toLowerCase().includes('male') || 
+           voice.name.toLowerCase().includes('david'))
+        );
+      }
+    }
     
     // Final fallback
     if (!bestVoice) {
@@ -393,10 +582,10 @@ Transform this to Yoda-speak while keeping all the factual information intact:`;
                   value={selectedVoice}
                   onChange={(e) => setSelectedVoice(e.target.value)}
                 >
-                  <option value="morgan-freeman">🎭 Morgan Freeman</option>
-                  <option value="darth-vader">⚫ Darth Vader</option>
-                  <option value="pinky-pie">🦄 Pinky Pie</option>
+                                      <option value="freeman">🎭 Freeman</option>
+                    <option value="pinky-pie">🦄 Pinky Pie</option>
                   <option value="yoda">🐸 Yoda</option>
+                  <option value="megatron">🤖 Megatron</option>
                 </select>
               </div>
               

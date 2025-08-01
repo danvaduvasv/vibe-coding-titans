@@ -553,16 +553,12 @@ body {
   margin-left: 8px;
 }
 
-.speech-button.morgan-freeman-voice {
+.speech-button.freeman-voice {
   background: linear-gradient(135deg, #6b4e3d 0%, #8b5a3c 100%);
   box-shadow: 0 2px 4px rgba(107, 78, 61, 0.3);
 }
 
-.speech-button.darth-vader-voice {
-  background: linear-gradient(135deg, #2c2c2c 0%, #000000 100%);
-  box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
-  border: 1px solid #ff0000;
-}
+
 
 .speech-button.pinky-pie-voice {
   background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
@@ -578,15 +574,12 @@ body {
   transform: scale(1.1);
 }
 
-.speech-button.morgan-freeman-voice:hover {
+.speech-button.freeman-voice:hover {
   background: linear-gradient(135deg, #5a3d2a 0%, #7a4a2b 100%);
   box-shadow: 0 4px 8px rgba(107, 78, 61, 0.4);
 }
 
-.speech-button.darth-vader-voice:hover {
-  background: linear-gradient(135deg, #1a1a1a 0%, #330000 100%);
-  box-shadow: 0 4px 8px rgba(255, 0, 0, 0.5);
-}
+
 
 .speech-button.pinky-pie-voice:hover {
   background: linear-gradient(135deg, #ff1493 0%, #dc143c 100%);
@@ -596,6 +589,17 @@ body {
 .speech-button.yoda-voice:hover {
   background: linear-gradient(135deg, #006400 0%, #004d00 100%);
   box-shadow: 0 4px 8px rgba(34, 139, 34, 0.5);
+}
+
+.speech-button.megatron-voice {
+  background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+  box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
+  border: 1px solid #ff0000;
+}
+
+.speech-button.megatron-voice:hover {
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  box-shadow: 0 4px 8px rgba(255, 0, 0, 0.5);
 }
 
 .voice-selector {
