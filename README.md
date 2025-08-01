@@ -51,6 +51,130 @@ A modern React application that uses your device's geolocation to pinpoint your 
 
 5. Open your browser and navigate to the provided local URL (typically `http://localhost:5173`)
 
+## 🐳 Docker & Docker Compose
+
+### Quick Start with Docker
+
+The easiest way to run ChronoGuide is using Docker Compose:
+
+```bash
+# Clone the repository (if not already done)
+git clone <repository-url>
+cd vibe-coding-titans
+
+# Start the application with Docker Compose
+docker-compose up -d
+
+# The app will be available at http://localhost:3000
+```
+
+### Docker Compose Configuration
+
+The `docker-compose.yml` file includes:
+
+- **Frontend**: React application served on port 3000
+- **Environment Variables**: Loaded from `.env` file
+- **Volume Mounting**: For development with hot reload
+- **Health Checks**: Ensures the application is running properly
+
+### Docker Development
+
+For development with hot reload:
+
+```bash
+# Start in development mode
+docker-compose up
+
+# View logs
+docker-compose logs -f
+
+# Stop the application
+docker-compose down
+```
+
+### Production Docker Build
+
+To build and run the production version:
+
+```bash
+# Build the production image
+docker build -t chronoguide .
+
+# Run the production container
+docker run -p 3000:3000 --env-file .env chronoguide
+
+# Or with Docker Compose
+docker-compose -f docker-compose.yml up --build
+```
+
+### Docker Environment Variables
+
+Create a `.env` file in the project root with your API keys:
+
+```bash
+# Required API Keys
+VITE_GEOAPIFY_API_KEY=your-actual-geoapify-api-key-here
+VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key-here
+
+# Optional: Custom port (default: 3000)
+PORT=3000
+```
+
+### Docker Commands Reference
+
+```bash
+# Development
+docker-compose up                    # Start with logs
+docker-compose up -d                 # Start in background
+docker-compose down                  # Stop and remove containers
+docker-compose logs -f               # Follow logs
+docker-compose restart               # Restart services
+
+# Production
+docker build -t chronoguide .        # Build image
+docker run -p 3000:3000 chronoguide # Run container
+docker stop $(docker ps -q)          # Stop all containers
+
+# Maintenance
+docker system prune                  # Clean up unused resources
+docker volume prune                  # Clean up volumes
+docker image prune                   # Clean up images
+```
+
+### Docker Troubleshooting
+
+#### Port Already in Use
+```bash
+# Check what's using port 3000
+lsof -i :3000
+
+# Use a different port
+docker-compose up -d -e PORT=3001
+```
+
+#### Environment Variables Not Loading
+```bash
+# Check if .env file exists
+ls -la .env
+
+# Create .env file if missing
+cp .env.example .env
+# Then edit .env with your API keys
+```
+
+#### Container Won't Start
+```bash
+# Check container logs
+docker-compose logs
+
+# Check container status
+docker-compose ps
+
+# Rebuild and restart
+docker-compose down
+docker-compose up --build
+```
+
 ### Location Permissions
 
 When you first visit the app, your browser will ask for location permissions. Make sure to:
@@ -107,6 +231,37 @@ This app works in all modern browsers that support:
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+
+### Deployment Scripts
+
+The project includes automated deployment scripts in the `scripts/` directory:
+
+#### 🚀 Production Deployment
+```bash
+# Deploy to AWS App Runner with ECR
+./scripts/package-and-publish.sh
+
+# Deploy specific version to environment
+./scripts/deploy-version.sh develop v1.2.3
+./scripts/deploy-version.sh qa v1.2.3
+./scripts/deploy-version.sh prod v1.2.3
+```
+
+#### 📦 Package and Publish
+The `package-and-publish.sh` script handles:
+- Git tagging with semantic versioning
+- Docker image building for x86_64/amd64 platforms
+- AWS ECR repository management
+- Image publishing to ECR
+
+#### 🎯 Version Deployment
+The `deploy-version.sh` script handles:
+- Multi-environment deployment (develop, qa, prod)
+- AWS App Runner service management
+- Secrets Manager integration for API keys
+- Health check validation
+
+For detailed documentation on deployment scripts, see [scripts/README.md](scripts/README.md).
 
 ### Project Structure
 

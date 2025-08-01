@@ -1,10 +1,10 @@
 # Scripts Directory
 
-This directory contains automation scripts for the Weather App project.
+This directory contains automation scripts for the ChronoGuide App project.
 
 ## 📦 package-and-publish.sh
 
-A comprehensive release automation script that handles the complete CI/CD pipeline for publishing the Weather App to AWS ECR.
+A comprehensive release automation script that handles the complete CI/CD pipeline for publishing ChronoGuide to AWS ECR.
 
 ### What it does:
 
@@ -66,10 +66,10 @@ The script will:
 AWS_REGION=eu-west-1 ./scripts/package-and-publish.sh
 
 # Use different ECR repository name
-ECR_REPOSITORY_NAME=my-weather-app ./scripts/package-and-publish.sh
+ECR_REPOSITORY_NAME=my-chronoguide ./scripts/package-and-publish.sh
 
 # Use custom image name
-IMAGE_NAME=custom-weatherapp ./scripts/package-and-publish.sh
+IMAGE_NAME=custom-chronoguide ./scripts/package-and-publish.sh
 
 # Use different Dockerfile
 DOCKERFILE_PATH=./docker/Dockerfile.prod ./scripts/package-and-publish.sh
@@ -80,8 +80,8 @@ DOCKERFILE_PATH=./docker/Dockerfile.prod ./scripts/package-and-publish.sh
 | Environment Variable | Default | Description |
 |---------------------|---------|-------------|
 | `AWS_REGION` | `us-east-1` | AWS region for ECR repository |
-| `ECR_REPOSITORY_NAME` | `weatherapp` | Name of the ECR repository |
-| `IMAGE_NAME` | `weatherapp` | Local Docker image name |
+| `ECR_REPOSITORY_NAME` | `chronoguide` | Name of the ECR repository |
+| `IMAGE_NAME` | `chronoguide` | Local Docker image name |
 | `DOCKERFILE_PATH` | `./Dockerfile` | Path to the Dockerfile |
 
 ### Version Format:
@@ -105,14 +105,14 @@ git push
 
 # Output:
 # ╔══════════════════════════════════════════════╗
-# ║           Weather App - Release Tool         ║
+# ║           ChronoGuide - Release Tool         ║
 # ╚══════════════════════════════════════════════╝
 #
 # [INFO] Starting release process...
 # [INFO] Configuration:
 #   - AWS Region: us-east-1
-#   - ECR Repository: weatherapp
-#   - Image Name: weatherapp
+#   - ECR Repository: chronoguide
+#   - Image Name: chronoguide
 #   - Dockerfile: ./Dockerfile
 #
 # [INFO] Checking prerequisites...
@@ -130,29 +130,29 @@ git push
 #
 # [WARNING] This will:
 #   1. Create and push Git tag: v1.1.0
-#   2. Build Docker image: weatherapp:v1.1.0
-#   3. Create ECR repository if needed: weatherapp
+#   2. Build Docker image: chronoguide:v1.1.0
+#   3. Create ECR repository if needed: chronoguide
 #   4. Push image to ECR in region: us-east-1
 #
 # Continue? (y/N): y
 #
 # [INFO] Creating Git tag: v1.1.0
 # [SUCCESS] Git tag v1.1.0 created and pushed!
-# [INFO] Building Docker image: weatherapp:v1.1.0
+# [INFO] Building Docker image: chronoguide:v1.1.0
 # [SUCCESS] Docker image built successfully!
 # [INFO] AWS Account ID: 123456789012
 # [INFO] ECR Registry: 123456789012.dkr.ecr.us-east-1.amazonaws.com
-# [SUCCESS] ECR repository 'weatherapp' already exists.
+# [SUCCESS] ECR repository 'chronoguide' already exists.
 # [INFO] Logging in to ECR...
 # [SUCCESS] Successfully logged in to ECR!
 # [INFO] Tagging image for ECR...
-# [INFO] Pushing image to ECR: 123456789012.dkr.ecr.us-east-1.amazonaws.com/weatherapp:v1.1.0
-# [INFO] Pushing latest tag to ECR: 123456789012.dkr.ecr.us-east-1.amazonaws.com/weatherapp:latest
+# [INFO] Pushing image to ECR: 123456789012.dkr.ecr.us-east-1.amazonaws.com/chronoguide:v1.1.0
+# [INFO] Pushing latest tag to ECR: 123456789012.dkr.ecr.us-east-1.amazonaws.com/chronoguide:latest
 # [SUCCESS] Image pushed successfully to ECR!
 #
 # [INFO] Image URIs:
-#   - 123456789012.dkr.ecr.us-east-1.amazonaws.com/weatherapp:v1.1.0
-#   - 123456789012.dkr.ecr.us-east-1.amazonaws.com/weatherapp:latest
+#   - 123456789012.dkr.ecr.us-east-1.amazonaws.com/chronoguide:v1.1.0
+#   - 123456789012.dkr.ecr.us-east-1.amazonaws.com/chronoguide:latest
 #
 # Remove local Docker images? (y/N): y
 # [INFO] Cleaning up local images...
@@ -161,7 +161,7 @@ git push
 # [SUCCESS] 🎉 Release v1.1.0 completed successfully!
 #
 # [INFO] Next steps:
-#   - Update your deployment configurations to use: 123456789012.dkr.ecr.us-east-1.amazonaws.com/weatherapp:v1.1.0
+#   - Update your deployment configurations to use: 123456789012.dkr.ecr.us-east-1.amazonaws.com/chronoguide:v1.1.0
 #   - Consider creating a GitHub release for tag: v1.1.0
 #   - Update your production environment
 ```
@@ -226,7 +226,7 @@ git push origin --delete v1.0.0
 
 ## 🚀 deploy-version.sh
 
-A comprehensive deployment script that deploys specific versions of the Weather App to AWS App Runner environments.
+A comprehensive deployment script that deploys specific versions of ChronoGuide to AWS App Runner environments.
 
 ### What it does:
 
@@ -274,7 +274,7 @@ A comprehensive deployment script that deploys specific versions of the Weather 
                 "secretsmanager:DescribeSecret",
                 "secretsmanager:GetSecretValue"
             ],
-            "Resource": "arn:aws:secretsmanager:*:*:secret:/secrets/*-weatherapp*"
+            "Resource": "arn:aws:secretsmanager:*:*:secret:/secrets/*-chronoguide*"
         },
         {
             "Effect": "Allow",
@@ -294,45 +294,45 @@ A comprehensive deployment script that deploys specific versions of the Weather 
 Before deploying, you MUST create a secret in AWS Secrets Manager for each environment:
 
 #### Secret Names:
-- Development: `/secrets/develop-weatherapp`
-- QA: `/secrets/qa-weatherapp`
-- Production: `/secrets/prod-weatherapp`
+- Development: `/secrets/develop-chronoguide`
+- QA: `/secrets/qa-chronoguide`
+- Production: `/secrets/prod-chronoguide`
 
 #### Create Secret via AWS CLI:
 ```bash
 # For development environment
 aws secretsmanager create-secret \
-  --name "/secrets/develop-weatherapp" \
-  --description "Environment variables for Weather App develop environment" \
+  --name "/secrets/develop-chronoguide" \
+  --description "Environment variables for ChronoGuide develop environment" \
   --secret-string '{
     "VITE_OPENAI_API_KEY": "your-openai-api-key",
-    "VITE_WEATHER_API_KEY": "your-openweathermap-api-key",
+    "VITE_GEOAPIFY_API_KEY": "your-geoapify-api-key",
     "VITE_OPENAI_API_URL": "https://api.openai.com/v1/chat/completions",
-    "VITE_WEATHER_API_URL": "https://api.openweathermap.org/data/2.5/weather"
+    "VITE_GEOAPIFY_API_URL": "https://api.geoapify.com/v1"
   }' \
   --region eu-west-1
 
 # For QA environment
 aws secretsmanager create-secret \
-  --name "/secrets/qa-weatherapp" \
-  --description "Environment variables for Weather App qa environment" \
+  --name "/secrets/qa-chronoguide" \
+  --description "Environment variables for ChronoGuide qa environment" \
   --secret-string '{
     "VITE_OPENAI_API_KEY": "your-qa-openai-api-key",
-    "VITE_WEATHER_API_KEY": "your-qa-openweathermap-api-key",
+    "VITE_GEOAPIFY_API_KEY": "your-qa-geoapify-api-key",
     "VITE_OPENAI_API_URL": "https://api.openai.com/v1/chat/completions",
-    "VITE_WEATHER_API_URL": "https://api.openweathermap.org/data/2.5/weather"
+    "VITE_GEOAPIFY_API_URL": "https://api.geoapify.com/v1"
   }' \
   --region eu-west-1
 
 # For production environment
 aws secretsmanager create-secret \
-  --name "/secrets/prod-weatherapp" \
-  --description "Environment variables for Weather App prod environment" \
+  --name "/secrets/prod-chronoguide" \
+  --description "Environment variables for ChronoGuide prod environment" \
   --secret-string '{
     "VITE_OPENAI_API_KEY": "your-prod-openai-api-key",
-    "VITE_WEATHER_API_KEY": "your-prod-openweathermap-api-key",
+    "VITE_GEOAPIFY_API_KEY": "your-prod-geoapify-api-key",
     "VITE_OPENAI_API_URL": "https://api.openai.com/v1/chat/completions",
-    "VITE_WEATHER_API_URL": "https://api.openweathermap.org/data/2.5/weather"
+    "VITE_GEOAPIFY_API_URL": "https://api.geoapify.com/v1"
   }' \
   --region eu-west-1
 ```
@@ -340,10 +340,10 @@ aws secretsmanager create-secret \
 #### Update Existing Secret:
 ```bash
 aws secretsmanager update-secret \
-  --secret-id "/secrets/develop-weatherapp" \
+  --secret-id "/secrets/develop-chronoguide" \
   --secret-string '{
     "VITE_OPENAI_API_KEY": "updated-openai-key",
-    "VITE_WEATHER_API_KEY": "updated-weather-key"
+    "VITE_GEOAPIFY_API_KEY": "updated-geoapify-key"
   }' \
   --region eu-west-1
 ```
@@ -391,7 +391,7 @@ The script will prompt you to:
 AWS_REGION=us-east-1 ./scripts/deploy-version.sh develop v1.2.3
 
 # Use different ECR repository
-ECR_REPOSITORY_NAME=my-weather-app ./scripts/deploy-version.sh qa v1.2.3
+ECR_REPOSITORY_NAME=my-chronoguide ./scripts/deploy-version.sh qa v1.2.3
 ```
 
 ### Configuration Options:
@@ -399,7 +399,7 @@ ECR_REPOSITORY_NAME=my-weather-app ./scripts/deploy-version.sh qa v1.2.3
 | Environment Variable | Default | Description |
 |---------------------|---------|-------------|
 | `AWS_REGION` | `eu-west-1` | AWS region for all services |
-| `ECR_REPOSITORY_NAME` | `weatherapp` | ECR repository name |
+| `ECR_REPOSITORY_NAME` | `chronoguide` | ECR repository name |
 
 ### App Runner Configuration:
 
@@ -413,12 +413,12 @@ The script creates App Runner services with the following configuration:
 
 ### Service Naming Convention:
 
-App Runner services are named using the pattern: `weatherapp-<ENVIRONMENT>`
+App Runner services are named using the pattern: `chronoguide-<ENVIRONMENT>`
 
 Examples:
-- Development: `weatherapp-develop`
-- QA: `weatherapp-qa`
-- Production: `weatherapp-prod`
+- Development: `chronoguide-develop`
+- QA: `chronoguide-qa`
+- Production: `chronoguide-prod`
 
 ### Validation Process:
 
@@ -439,8 +439,8 @@ The script performs comprehensive validation before deployment:
 
 # 2. Create secrets (one-time setup per environment)
 aws secretsmanager create-secret \
-  --name "/secrets/develop-weatherapp" \
-  --secret-string '{"VITE_OPENAI_API_KEY":"sk-...","VITE_WEATHER_API_KEY":"..."}' \
+  --name "/secrets/develop-chronoguide" \
+  --secret-string '{"VITE_OPENAI_API_KEY":"sk-...","VITE_GEOAPIFY_API_KEY":"..."}' \
   --region eu-west-1
 
 # 3. Deploy to development (interactive mode)
@@ -448,7 +448,7 @@ aws secretsmanager create-secret \
 
 # Output:
 # ╔══════════════════════════════════════════════╗
-# ║        Weather App - Deployment Tool         ║
+# ║        ChronoGuide - Deployment Tool         ║
 # ╚══════════════════════════════════════════════╝
 #
 # [INFO] Select target environment:
@@ -477,31 +477,31 @@ aws secretsmanager create-secret \
 # ║                         IMPORTANT NOTE                         ║
 # ╠════════════════════════════════════════════════════════════════╣
 # ║ This script requires a secret in AWS Secrets Manager at:      ║
-# ║ /secrets/develop-weatherapp                                    ║
+# ║ /secrets/develop-chronoguide                                   ║
 # ║                                                                ║
 # ║ The secret must contain your API keys as JSON:                ║
 # ║ {                                                              ║
 # ║   "VITE_OPENAI_API_KEY": "your-openai-key",                   ║
-# ║   "VITE_WEATHER_API_KEY": "your-weather-key",                 ║
+# ║   "VITE_GEOAPIFY_API_KEY": "your-geoapify-key",               ║
 # ║   "VITE_OPENAI_API_URL": "https://api.openai.com/v1/..."       ║
-# ║   "VITE_WEATHER_API_URL": "https://api.openweathermap.org/..." ║
+# ║   "VITE_GEOAPIFY_API_URL": "https://api.geoapify.com/v1/..."   ║
 # ║ }                                                              ║
 # ╚════════════════════════════════════════════════════════════════╝
 #
 # [SUCCESS] All prerequisites met!
 # [SUCCESS] Git tag 'v1.2.3' exists.
 # [SUCCESS] ECR image 'v1.2.3' exists and is ready for deployment.
-# [SUCCESS] Secret '/secrets/develop-weatherapp' exists and is accessible.
-# [INFO] App Runner service name: weatherapp-develop
+# [SUCCESS] Secret '/secrets/develop-chronoguide' exists and is accessible.
+# [INFO] App Runner service name: chronoguide-develop
 #
 # Ready to deploy v1.2.3 to develop environment.
 # Continue? (y/N): y
 #
 # [INFO] Starting deployment of v1.2.3 to develop environment...
 # [SUCCESS] App Runner configuration created
-# [INFO] Service 'weatherapp-develop' does not exist. Will create it.
-# [INFO] Creating new App Runner service: weatherapp-develop
-# [SUCCESS] App Runner service created: arn:aws:apprunner:eu-west-1:123456789:service/weatherapp-develop
+# [INFO] Service 'chronoguide-develop' does not exist. Will create it.
+# [INFO] Creating new App Runner service: chronoguide-develop
+# [SUCCESS] App Runner service created: arn:aws:apprunner:eu-west-1:123456789:service/chronoguide-develop
 # [INFO] Waiting for service to be ready (this may take several minutes)...
 # ..........
 # [SUCCESS] Service is running!
@@ -520,8 +520,8 @@ aws secretsmanager create-secret \
 # [INFO] Deployment Summary:
 #   - Environment: develop
 #   - Version: v1.2.3
-#   - Service: weatherapp-develop
-#   - Image: 123456789.dkr.ecr.eu-west-1.amazonaws.com/weatherapp:v1.2.3
+#   - Service: chronoguide-develop
+#   - Image: 123456789.dkr.ecr.eu-west-1.amazonaws.com/chronoguide:v1.2.3
 #   - URL: https://abc123.eu-west-1.awsapprunner.com
 #   - Health Check: https://abc123.eu-west-1.awsapprunner.com/health
 #
@@ -581,8 +581,8 @@ The deployment script requires the following AWS IAM permissions:
                 "iam:PassRole"
             ],
             "Resource": [
-                "arn:aws:iam::*:role/AppRunnerInstanceRole-weatherapp-*",
-                "arn:aws:iam::*:role/AppRunnerAccessRole-weatherapp-*"
+                "arn:aws:iam::*:role/AppRunnerInstanceRole-chronoguide-*",
+                "arn:aws:iam::*:role/AppRunnerAccessRole-chronoguide-*"
             ]
         },
         {
@@ -597,8 +597,8 @@ The deployment script requires the following AWS IAM permissions:
 ```
 
 **Note**: The script automatically creates two types of environment-specific IAM roles:
-- **Access Role** (e.g., `AppRunnerAccessRole-weatherapp-develop`) - For App Runner to access ECR registry
-- **Instance Role** (e.g., `AppRunnerInstanceRole-weatherapp-develop`) - For App Runner instances to access Secrets Manager
+- **Access Role** (e.g., `AppRunnerAccessRole-chronoguide-develop`) - For App Runner to access ECR registry
+- **Instance Role** (e.g., `AppRunnerInstanceRole-chronoguide-develop`) - For App Runner instances to access Secrets Manager
 
 These roles are required for private ECR access and runtime environment secrets, providing security isolation between environments.
 
@@ -620,7 +620,7 @@ git push origin v1.2.3
 #### Version Not Found in ECR
 ```bash
 # Check available images
-aws ecr describe-images --repository-name weatherapp --region eu-west-1
+aws ecr describe-images --repository-name chronoguide --region eu-west-1
 
 # Build and push missing version
 ./scripts/package-and-publish.sh v1.2.3
@@ -633,7 +633,7 @@ aws secretsmanager list-secrets --region eu-west-1
 
 # Create missing secret
 aws secretsmanager create-secret \
-  --name "/secrets/develop-weatherapp" \
+  --name "/secrets/develop-chronoguide" \
   --secret-string '{"VITE_OPENAI_API_KEY":"your-key"}' \
   --region eu-west-1
 ```
@@ -642,11 +642,11 @@ aws secretsmanager create-secret \
 ```bash
 # Check service status
 aws apprunner describe-service \
-  --service-arn "arn:aws:apprunner:eu-west-1:ACCOUNT:service/weatherapp-develop" \
+  --service-arn "arn:aws:apprunner:eu-west-1:ACCOUNT:service/chronoguide-develop" \
   --region eu-west-1
 
 # View service logs in AWS Console
-# Go to: App Runner > Services > weatherapp-develop > Logs
+# Go to: App Runner > Services > chronoguide-develop > Logs
 ```
 
 #### Permission Denied
