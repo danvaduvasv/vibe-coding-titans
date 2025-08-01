@@ -3,6 +3,7 @@ import type { Map as LeafletMap } from 'leaflet';
 import { useGeolocation } from './hooks/useGeolocation';
 import { useHistoricalSpots } from './hooks/useHistoricalSpots';
 import { useFoodBeverageSpots } from './hooks/useFoodBeverageSpots';
+import { useAccommodationSpots } from './hooks/useAccommodationSpots';
 import SatelliteMap from './components/SatelliteMap';
 import LoadingSpinner from './components/LoadingSpinner';
 import MapSearchButton from './components/MapSearchButton';
@@ -27,12 +28,21 @@ function App() {
     clearSpots: clearFoodSpots
   } = useFoodBeverageSpots();
   
+  const {
+    spots: accommodationSpots,
+    loading: accommodationLoading,
+    error: accommodationError,
+    searchSpots: searchAccommodationSpots,
+    clearSpots: clearAccommodationSpots
+  } = useAccommodationSpots();
+  
   const [map, setMap] = useState<LeafletMap | null>(null);
   const [showBounds, setShowBounds] = useState(false);
   const [searchCenter, setSearchCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [searchRadius, setSearchRadius] = useState<number>(500); // Default 500m radius
   const [showHistoricalSpots, setShowHistoricalSpots] = useState(true);
   const [showFoodBeverageSpots, setShowFoodBeverageSpots] = useState(true);
+  const [showAccommodationSpots, setShowAccommodationSpots] = useState(true);
 
   const handleMapReady = (mapInstance: LeafletMap) => {
     setMap(mapInstance);
@@ -44,11 +54,13 @@ function App() {
     setShowBounds(true);
     searchSpots(centerLat, centerLng, searchRadius);
     searchFoodSpots(centerLat, centerLng, searchRadius);
+    searchAccommodationSpots(centerLat, centerLng, searchRadius);
   };
 
   const handleClearSpots = () => {
     clearSpots();
     clearFoodSpots();
+    clearAccommodationSpots();
     setShowBounds(false);
     setSearchCenter(null);
   };
@@ -123,11 +135,19 @@ function App() {
                     </span>
                   </div>
                 )}
+                {accommodationSpots.length > 0 && (
+                  <div className="coord-item">
+                    <span className="coord-label">Accommodation:</span>
+                    <span className="coord-value">
+                      {accommodationSpots.length} found
+                    </span>
+                  </div>
+                )}
               </div>
               
-              {(spotsError || foodError) && (
+              {(spotsError || foodError || accommodationError) && (
                 <div className="spots-error">
-                  <p className="error-text">⚠️ {spotsError || foodError}</p>
+                  <p className="error-text">⚠️ {spotsError || foodError || accommodationError}</p>
                   <p className="error-hint">Try searching again with the search button below</p>
                 </div>
               )}
@@ -139,12 +159,14 @@ function App() {
               accuracy={accuracy}
               historicalSpots={historicalSpots}
               foodBeverageSpots={foodBeverageSpots}
+              accommodationSpots={accommodationSpots}
               onMapReady={handleMapReady}
               showBounds={showBounds}
               searchCenter={searchCenter}
               searchRadius={searchRadius}
               showHistoricalSpots={showHistoricalSpots}
               showFoodBeverageSpots={showFoodBeverageSpots}
+              showAccommodationSpots={showAccommodationSpots}
             />
                  
                  <SearchControls
@@ -152,17 +174,20 @@ function App() {
                    onRadiusChange={setSearchRadius}
                    showHistoricalSpots={showHistoricalSpots}
                    showFoodBeverageSpots={showFoodBeverageSpots}
+                   showAccommodationSpots={showAccommodationSpots}
                    onHistoricalSpotsToggle={setShowHistoricalSpots}
                    onFoodBeverageSpotsToggle={setShowFoodBeverageSpots}
+                   onAccommodationSpotsToggle={setShowAccommodationSpots}
                    historicalSpotsCount={historicalSpots.length}
                    foodBeverageSpotsCount={foodBeverageSpots.length}
+                   accommodationSpotsCount={accommodationSpots.length}
                  />
                  
                                   <MapSearchButton
                    map={map}
                    onSearch={handleSearch}
-                   loading={spotsLoading || foodLoading}
-                   spotsCount={historicalSpots.length + foodBeverageSpots.length}
+                   loading={spotsLoading || foodLoading || accommodationLoading}
+                   spotsCount={historicalSpots.length + foodBeverageSpots.length + accommodationSpots.length}
                    onClear={handleClearSpots}
                    showBounds={showBounds}
                    onToggleBounds={handleToggleBounds}

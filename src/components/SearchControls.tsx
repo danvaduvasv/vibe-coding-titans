@@ -5,10 +5,13 @@ interface SearchControlsProps {
   onRadiusChange: (radius: number) => void;
   showHistoricalSpots: boolean;
   showFoodBeverageSpots: boolean;
+  showAccommodationSpots: boolean;
   onHistoricalSpotsToggle: (show: boolean) => void;
   onFoodBeverageSpotsToggle: (show: boolean) => void;
+  onAccommodationSpotsToggle: (show: boolean) => void;
   historicalSpotsCount: number;
   foodBeverageSpotsCount: number;
+  accommodationSpotsCount: number;
 }
 
 const SearchControls: React.FC<SearchControlsProps> = ({
@@ -16,10 +19,13 @@ const SearchControls: React.FC<SearchControlsProps> = ({
   onRadiusChange,
   showHistoricalSpots,
   showFoodBeverageSpots,
+  showAccommodationSpots,
   onHistoricalSpotsToggle,
   onFoodBeverageSpotsToggle,
+  onAccommodationSpotsToggle,
   historicalSpotsCount,
-  foodBeverageSpotsCount
+  foodBeverageSpotsCount,
+  accommodationSpotsCount
 }) => {
   return (
     <div className="search-controls">
@@ -65,6 +71,20 @@ const SearchControls: React.FC<SearchControlsProps> = ({
             />
             <span className="checkbox-text">
               🍽️ Food & Beverage ({foodBeverageSpotsCount})
+            </span>
+          </label>
+        </div>
+        
+        <div className="checkbox-group">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={showAccommodationSpots}
+              onChange={(e) => onAccommodationSpotsToggle(e.target.checked)}
+              className="spot-checkbox"
+            />
+            <span className="checkbox-text">
+              🏨 Accommodation ({accommodationSpotsCount})
             </span>
           </label>
         </div>

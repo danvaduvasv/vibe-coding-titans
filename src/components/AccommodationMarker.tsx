@@ -1,13 +1,13 @@
 import { Marker, Popup } from 'react-leaflet';
 import { divIcon } from 'leaflet';
-import type { FoodBeverageSpot } from '../types/FoodBeverageSpot';
+import type { AccommodationSpot } from '../types/AccommodationSpot';
 
-interface FoodBeverageMarkerProps {
-  spot: FoodBeverageSpot;
+interface AccommodationMarkerProps {
+  spot: AccommodationSpot;
 }
 
-// Custom icon for food & beverage spots
-const createFoodIcon = (category: string) => {
+// Custom icon for accommodation spots
+const createAccommodationIcon = (category: string) => {
   const iconColor = getCategoryColor(category);
   
   return divIcon({
@@ -30,10 +30,10 @@ const createFoodIcon = (category: string) => {
           font-size: 16px;
           font-weight: bold;
           line-height: 1;
-        ">🍽️</span>
+        ">🏨</span>
       </div>
     `,
-    className: 'food-beverage-spot-marker',
+    className: 'accommodation-spot-marker',
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
@@ -42,25 +42,27 @@ const createFoodIcon = (category: string) => {
 
 const getCategoryColor = (category: string): string => {
   const colorMap: { [key: string]: string } = {
-    'Restaurant': '#FF6B6B',
-    'Cafe': '#4ECDC4',
-    'Bar': '#45B7D1',
-    'Fast Food': '#FFA07A',
-    'Pub': '#8B4513',
-    'Bistro': '#FF69B4',
-    'Pizzeria': '#FF6347',
-    'Bakery': '#DEB887',
-    'Ice Cream Shop': '#87CEEB',
-    'Sports Bar': '#32CD32',
-    'Health Food': '#90EE90',
-    'Food & Beverage': '#FFD700'
+    'Hotel': '#FF6B6B',
+    'Hostel': '#4ECDC4',
+    'Guest House': '#45B7D1',
+    'Motel': '#FFA07A',
+    'Camping': '#8B4513',
+    'Chalet': '#FF69B4',
+    'Apartment': '#FF6347',
+    'Resort': '#DEB887',
+    'Inn': '#87CEEB',
+    'Bed & Breakfast': '#32CD32',
+    'Lodge': '#90EE90',
+    'Villa': '#FFD700',
+    'Suite': '#FF8C00',
+    'Accommodation': '#9370DB'
   };
   
-  return colorMap[category] || '#FFD700';
+  return colorMap[category] || '#9370DB';
 };
 
-const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot }) => {
-  const icon = createFoodIcon(spot.category);
+const AccommodationMarker: React.FC<AccommodationMarkerProps> = ({ spot }) => {
+  const icon = createAccommodationIcon(spot.category);
 
   return (
     <Marker
@@ -69,21 +71,21 @@ const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot }) => {
       key={spot.id}
     >
       <Popup>
-        <div className="food-popup">
-          <h3 className="food-name">{spot.name}</h3>
-          <div className="food-details">
-            <p className="food-category">
+        <div className="accommodation-popup">
+          <h3 className="accommodation-name">{spot.name}</h3>
+          <div className="accommodation-details">
+            <p className="accommodation-category">
               <strong>Type:</strong> {spot.category}
             </p>
-            {spot.cuisine && (
-              <p className="food-cuisine">
-                <strong>Cuisine:</strong> {spot.cuisine}
+            {spot.accommodationType && (
+              <p className="accommodation-type">
+                <strong>Accommodation:</strong> {spot.accommodationType}
               </p>
             )}
-            <p className="food-distance">
+            <p className="accommodation-distance">
               <strong>Distance:</strong> {spot.distance.toFixed(0)}m away
             </p>
-            <p className="food-description">
+            <p className="accommodation-description">
               {spot.description}
             </p>
           </div>
@@ -93,4 +95,4 @@ const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot }) => {
   );
 };
 
-export default FoodBeverageMarker; 
+export default AccommodationMarker; 

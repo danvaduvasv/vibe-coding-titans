@@ -802,3 +802,61 @@ body {
     font-size: 0.85rem;
   }
 }
+
+/* Accommodation Popup Styles */
+.accommodation-popup .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.accommodation-name {
+  margin: 0 0 12px 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 8px;
+}
+
+.accommodation-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.accommodation-category,
+.accommodation-type,
+.accommodation-distance {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.accommodation-category strong,
+.accommodation-type strong,
+.accommodation-distance strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.accommodation-category {
+  color: #9370DB;
+}
+
+.accommodation-type {
+  color: #28a745;
+}
+
+.accommodation-distance {
+  color: #6c757d;
+}
+
+.accommodation-description {
+  margin: 8px 0 0 0;
+  color: #495057;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  font-style: italic;
+  padding-top: 8px;
+  border-top: 1px solid #e9ecef;
+}

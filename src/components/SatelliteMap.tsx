@@ -4,10 +4,12 @@ import { Icon } from 'leaflet';
 import type { Map as LeafletMap } from 'leaflet';
 import HistoricalSpotMarker from './HistoricalSpotMarker';
 import FoodBeverageMarker from './FoodBeverageMarker';
+import AccommodationMarker from './AccommodationMarker';
 import BoundsOverlay from './BoundsOverlay';
 import MapInstanceCapture from './MapInstanceCapture';
 import type { HistoricalSpot } from '../types/HistoricalSpot';
 import type { FoodBeverageSpot } from '../types/FoodBeverageSpot';
+import type { AccommodationSpot } from '../types/AccommodationSpot';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default markers in react-leaflet
@@ -24,12 +26,14 @@ interface SatelliteMapProps {
   accuracy?: number | null;
   historicalSpots?: HistoricalSpot[];
   foodBeverageSpots?: FoodBeverageSpot[];
+  accommodationSpots?: AccommodationSpot[];
   onMapReady?: (map: LeafletMap) => void;
   showBounds?: boolean;
   searchCenter?: { lat: number; lng: number } | null;
   searchRadius?: number;
   showHistoricalSpots?: boolean;
   showFoodBeverageSpots?: boolean;
+  showAccommodationSpots?: boolean;
 }
 
 const SatelliteMap: React.FC<SatelliteMapProps> = ({ 
@@ -38,12 +42,14 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
   accuracy, 
   historicalSpots = [], 
   foodBeverageSpots = [],
+  accommodationSpots = [],
   onMapReady, 
   showBounds = false,
   searchCenter = null,
   searchRadius = 500,
   showHistoricalSpots = true,
-  showFoodBeverageSpots = true
+  showFoodBeverageSpots = true,
+  showAccommodationSpots = true
 }) => {
 
   return (
@@ -112,6 +118,14 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
         {/* Render food & beverage spots */}
         {showFoodBeverageSpots && foodBeverageSpots.map((spot) => (
           <FoodBeverageMarker 
+            key={spot.id} 
+            spot={spot}
+          />
+        ))}
+
+        {/* Render accommodation spots */}
+        {showAccommodationSpots && accommodationSpots.map((spot) => (
+          <AccommodationMarker 
             key={spot.id} 
             spot={spot}
           />
