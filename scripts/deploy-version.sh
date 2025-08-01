@@ -472,8 +472,8 @@ create_apprunner_config() {
       "ImageConfiguration": {
         "Port": "8080",
         "RuntimeEnvironmentSecrets": {
-          "VITE_OPENAI_API_KEY": "${SECRET_ARN}:VITE_OPENAI_API_KEY",
-          "VITE_GEOAPIFY_API_KEY": "${SECRET_ARN}:VITE_GEOAPIFY_API_KEY"
+          "VITE_OPENAI_API_KEY": "${SECRET_ARN}:VITE_OPENAI_API_KEY::",
+          "VITE_GEOAPIFY_API_KEY": "${SECRET_ARN}:VITE_GEOAPIFY_API_KEY::"
         },
         "RuntimeEnvironmentVariables": {
           "NODE_ENV": "production",
