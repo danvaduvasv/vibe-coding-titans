@@ -66,6 +66,12 @@ const HistoricalSpotMarker: React.FC<HistoricalSpotMarkerProps> = ({ spot, userL
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState<string>('freeman');
   
+  // State for pre-transformed text for performance
+  const [megatronFunFact, setMegatronFunFact] = useState<string | null>(null);
+  const [megatronSignificance, setMegatronSignificance] = useState<string | null>(null);
+  const [freemanFunFact, setFreemanFunFact] = useState<string | null>(null);
+  const [freemanSignificance, setFreemanSignificance] = useState<string | null>(null);
+  
   const formatDistance = (distance: number): string => {
     if (distance < 1000) {
       return `${Math.round(distance)}m`;
@@ -87,8 +93,58 @@ const HistoricalSpotMarker: React.FC<HistoricalSpotMarkerProps> = ({ spot, userL
           spot.longitude, 
           spot.category
         );
+        
+        // Immediately display the responses to the user
+        console.log('📖 Fun Fact:', details.funFact);
+        console.log('🏛️ Historical Significance:', details.historicalSignificance);
         setFunFact(details.funFact);
         setHistoricalSignificance(details.historicalSignificance);
+        
+        // Start background transformations without blocking the UI
+        console.log('🔄 Starting background voice transformations...');
+        
+        // Transform for Megatron voice in background
+        (async () => {
+          try {
+            const megatronFunFactTransformed = await transformToMegatronSpeak(details.funFact);
+            setMegatronFunFact(megatronFunFactTransformed);
+            console.log('🤖 Megatron fun fact pre-transformed');
+          } catch (error) {
+            console.error('Failed to pre-transform Megatron fun fact:', error);
+          }
+        })();
+        
+        (async () => {
+          try {
+            const megatronSignificanceTransformed = await transformToMegatronSpeak(details.historicalSignificance);
+            setMegatronSignificance(megatronSignificanceTransformed);
+            console.log('🤖 Megatron significance pre-transformed');
+          } catch (error) {
+            console.error('Failed to pre-transform Megatron significance:', error);
+          }
+        })();
+        
+        // Transform for Freeman voice in background
+        (async () => {
+          try {
+            const freemanFunFactTransformed = await transformToFreemanSpeak(details.funFact);
+            setFreemanFunFact(freemanFunFactTransformed);
+            console.log('🎭 Freeman fun fact pre-transformed');
+          } catch (error) {
+            console.error('Failed to pre-transform Freeman fun fact:', error);
+          }
+        })();
+        
+        (async () => {
+          try {
+            const freemanSignificanceTransformed = await transformToFreemanSpeak(details.historicalSignificance);
+            setFreemanSignificance(freemanSignificanceTransformed);
+            console.log('🎭 Freeman significance pre-transformed');
+          } catch (error) {
+            console.error('Failed to pre-transform Freeman significance:', error);
+          }
+        })();
+        
       } catch (error) {
         console.error('Failed to load location details:', error);
         setFunFact('This location has its own unique history and stories worth discovering.');
@@ -379,14 +435,38 @@ Transform this to Freeman-speak while keeping all the factual information intact
 
     const voiceConfig = getVoiceConfig(selectedVoice);
     
-    // Show loading state for transformations
-    if (selectedVoice === 'yoda') {
-      console.log('Transforming text to authentic Yoda-speak...');
-    } else if (selectedVoice === 'megatron') {
-      console.log('Transforming text to authentic Megatron-speak...');
-    }
+    // Use pre-transformed text if available for better performance
+    let transformedText: string;
     
-    const transformedText = await transformTextForCharacter(text, selectedVoice);
+    if (selectedVoice === 'megatron') {
+      if (type === 'funFact' && megatronFunFact) {
+        console.log('Using pre-transformed Megatron fun fact');
+        transformedText = megatronFunFact;
+      } else if (type === 'significance' && megatronSignificance) {
+        console.log('Using pre-transformed Megatron significance');
+        transformedText = megatronSignificance;
+      } else {
+        console.log('Transforming text to authentic Megatron-speak...');
+        transformedText = await transformTextForCharacter(text, selectedVoice);
+      }
+    } else if (selectedVoice === 'freeman') {
+      if (type === 'funFact' && freemanFunFact) {
+        console.log('Using pre-transformed Freeman fun fact');
+        transformedText = freemanFunFact;
+      } else if (type === 'significance' && freemanSignificance) {
+        console.log('Using pre-transformed Freeman significance');
+        transformedText = freemanSignificance;
+      } else {
+        console.log('Transforming text to authentic Freeman-speak...');
+        transformedText = await transformTextForCharacter(text, selectedVoice);
+      }
+    } else {
+      // For other voices, transform on-demand
+      if (selectedVoice === 'yoda') {
+        console.log('Transforming text to authentic Yoda-speak...');
+      }
+      transformedText = await transformTextForCharacter(text, selectedVoice);
+    }
     
     // Use ElevenLabs for Megatron voice if available
     if (selectedVoice === 'megatron') {
