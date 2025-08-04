@@ -37,16 +37,15 @@ function App() {
   const [map, setMap] = useState<LeafletMap | null>(null);
   const [showBounds, setShowBounds] = useState(false);
   const [searchCenter, setSearchCenter] = useState<{ lat: number; lng: number } | null>(null);
-  const [searchRadius, setSearchRadius] = useState<number>(500); // Default 500m radius
+  const [searchRadius, setSearchRadius] = useState<number>(500);
   const [showHistoricalSpots, setShowHistoricalSpots] = useState(true);
   const [showFoodBeverageSpots, setShowFoodBeverageSpots] = useState(true);
   const [showAccommodationSpots, setShowAccommodationSpots] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [mapView, setMapView] = useState<'satellite' | 'street'>('satellite');
+  const [mapView, setMapView] = useState<'satellite' | 'street'>('street');
 
   const handleMapReady = (mapInstance: LeafletMap) => {
     setMap(mapInstance);
-    console.log('Map is ready for search - button should now be enabled');
   };
 
   const handleSearch = (centerLat: number, centerLng: number) => {
@@ -72,7 +71,6 @@ function App() {
   const handleRecenterMap = () => {
     if (map && latitude !== null && longitude !== null) {
       map.setView([latitude, longitude], 16);
-      console.log(`Map recentered to current location: ${latitude}, ${longitude}`);
     }
   };
 
@@ -112,7 +110,6 @@ function App() {
       </header>
 
       <div className="app-layout">
-        {/* Sidebar */}
         <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
           <div className="sidebar-header">
             <h2>Filters</h2>
@@ -126,7 +123,6 @@ function App() {
           </div>
 
                     <div className="sidebar-content">
-            {/* Location Info */}
             <div className="location-info-sidebar">
               <h3>📍 Current Location</h3>
               <p className="location-text">{formatLocationInfo()}</p>

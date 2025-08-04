@@ -13,7 +13,6 @@ import type { FoodBeverageSpot } from '../types/FoodBeverageSpot';
 import type { AccommodationSpot } from '../types/AccommodationSpot';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default markers in react-leaflet
 delete (Icon.Default.prototype as any)._getIconUrl;
 Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -58,7 +57,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
   showHistoricalSpots = true,
   showFoodBeverageSpots = true,
   showAccommodationSpots = true,
-  mapView = 'satellite',
+  mapView = 'street',
   onSearch,
   onClear,
   onToggleBounds,
@@ -83,10 +82,8 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
         style={{ height: '100%', width: '100%' }}
         scrollWheelZoom={true}
       >
-        {/* Map instance capture */}
         <MapInstanceCapture onMapReady={handleMapReady} />
 
-        {/* Dynamic tile layer based on map view */}
         {mapView === 'satellite' ? (
           <TileLayer
             attribution='&copy; <a href="https://www.esri.com/">Esri</a> &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
@@ -119,7 +116,6 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           </Popup>
         </Marker>
 
-                      {/* Show radius bounds overlay if requested */}
               {showBounds && searchCenter && (
                 <BoundsOverlay
                   centerLat={searchCenter.lat}
@@ -129,7 +125,6 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
                 />
               )}
 
-        {/* Render historical spots */}
         {showHistoricalSpots && historicalSpots.map((spot) => (
           <HistoricalSpotMarker 
             key={spot.id} 
@@ -139,7 +134,6 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           />
         ))}
 
-        {/* Render food & beverage spots */}
         {showFoodBeverageSpots && foodBeverageSpots.map((spot) => (
           <FoodBeverageMarker 
             key={spot.id} 
@@ -149,7 +143,6 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           />
         ))}
 
-        {/* Render accommodation spots */}
         {showAccommodationSpots && accommodationSpots.map((spot) => (
           <AccommodationMarker 
             key={spot.id} 
@@ -160,7 +153,6 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
         ))}
       </MapContainer>
       
-      {/* Floating Map Controls Overlay */}
       {onSearch && onClear && onToggleBounds && onRecenter && (
         <MapSearchButton
           map={map}
