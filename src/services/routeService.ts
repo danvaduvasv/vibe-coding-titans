@@ -41,6 +41,7 @@ export class RouteService {
       
       const data = await response.json();
       console.log('🗺️ Route API response:', data);
+      console.log('🗺️ Route geometry from API:', data.routes?.[0]?.geometry);
       
       if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
         throw new Error('No route found');
@@ -53,15 +54,24 @@ export class RouteService {
       
       if (route.geometry) {
         if (route.geometry.type === 'LineString' && route.geometry.coordinates) {
-          // Polyline format
+          // Polyline format - OSRM returns [lng, lat], Leaflet needs [lat, lng]
           geometry = route.geometry.coordinates.map((coord: number[]) => [coord[1], coord[0]]);
+          console.log('🗺️ Converted LineString geometry:', geometry);
         } else if (Array.isArray(route.geometry)) {
-          // Array format
+          // Array format - OSRM returns [lng, lat], Leaflet needs [lat, lng]
           geometry = route.geometry.map((coord: number[]) => [coord[1], coord[0]]);
+          console.log('🗺️ Converted Array geometry:', geometry);
         }
       } else {
         // Fallback: create a simple line between start and end points
         geometry = [[start.lat, start.lng], [end.lat, end.lng]];
+        console.log('🗺️ Using fallback geometry:', geometry);
+      }
+      
+      // Ensure we have at least 2 points for a valid route
+      if (geometry.length < 2) {
+        geometry = [[start.lat, start.lng], [end.lat, end.lng]];
+        console.log('🗺️ Using fallback geometry due to insufficient points:', geometry);
       }
       
       return {

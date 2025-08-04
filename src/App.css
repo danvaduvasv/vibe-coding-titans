@@ -1428,6 +1428,14 @@ body {
   box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
 }
 
+.route-map-container {
+  margin: 16px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
 /* Responsive Design for Route Display */
 @media (max-width: 768px) {
   .route-summary {
