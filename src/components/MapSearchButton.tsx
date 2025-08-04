@@ -53,58 +53,54 @@ const MapSearchButton: React.FC<MapSearchButtonProps> = ({
   };
 
   return (
-    <div className="map-search-controls">
-      <button 
-        className="search-button"
-        onClick={handleSearch}
-        disabled={!map || loading}
-      >
-        {loading ? (
-          <>
-            <span className="search-spinner"></span>
-            Searching...
-          </>
-        ) : (
-          <>
-            🔍 Find Historical Spots
-          </>
-        )}
-      </button>
-      
-      <div className="button-row">
-        {spotsCount > 0 && (
-          <button 
-            className="clear-button"
-            onClick={handleClear}
-            disabled={loading}
-          >
-            ✕ Clear ({spotsCount})
-          </button>
-        )}
+    <div className="map-controls-overlay">
+      <div className="map-controls-container">
+        {/* Recenter Button - Red with transparent background */}
+        <button 
+          className="recenter-button-overlay"
+          onClick={onRecenter}
+          disabled={!map || userLocation.latitude === null || userLocation.longitude === null}
+          title="Return to your current GPS location"
+        >
+          📍
+        </button>
         
-                       {spotsCount > 0 && (
-                 <button 
-                   className="bounds-toggle-button"
-                   onClick={onToggleBounds}
-                   disabled={loading}
-                 >
-                   {showBounds ? '👁️ Hide Radius' : `📐 Show ${searchRadius}m Radius`}
-                 </button>
-               )}
-               
-               <button 
-                 className="recenter-button"
-                 onClick={onRecenter}
-                 disabled={!map || userLocation.latitude === null || userLocation.longitude === null}
-                 title="Return to your current GPS location"
-               >
-                 📍 Recenter to My Location
-               </button>
+        {/* Search Button - Blue with transparent background */}
+        <button 
+          className="search-button-overlay"
+          onClick={handleSearch}
+          disabled={!map || loading}
+        >
+          {loading ? (
+            <span className="search-spinner-overlay"></span>
+          ) : (
+            '🔍'
+          )}
+        </button>
+        
+        {/* Clear and Hide buttons - only show when spots exist */}
+        {spotsCount > 0 && (
+          <div className="secondary-controls">
+            <button 
+              className="clear-button-overlay"
+              onClick={handleClear}
+              disabled={loading}
+              title="Clear all spots"
+            >
+              ✕
+            </button>
+            
+            <button 
+              className="bounds-toggle-button-overlay"
+              onClick={onToggleBounds}
+              disabled={loading}
+              title={showBounds ? 'Hide radius' : `Show ${searchRadius}m radius`}
+            >
+              {showBounds ? '👁️' : '📐'}
+            </button>
+          </div>
+        )}
       </div>
-      
-                   <div className="search-info">
-               <p>Position map center at your area of interest, then click search to find tourist attractions and heritage sites within {searchRadius}m radius</p>
-             </div>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { calculateDistance } from '../utils/mapBounds';
 import { getLocationDetails } from '../services/openaiService';
 import OpenAI from 'openai';
 import { createElevenLabsService } from '../services/elevenLabsService';
+import RouteDisplay from './RouteDisplay';
 import type { HistoricalSpot } from '../types/HistoricalSpot';
 
 interface HistoricalSpotMarkerProps {
@@ -71,6 +72,9 @@ const HistoricalSpotMarker: React.FC<HistoricalSpotMarkerProps> = ({ spot, userL
   const [megatronSignificance, setMegatronSignificance] = useState<string | null>(null);
   const [freemanFunFact, setFreemanFunFact] = useState<string | null>(null);
   const [freemanSignificance, setFreemanSignificance] = useState<string | null>(null);
+  
+  // State for route display
+  const [showRoute, setShowRoute] = useState(false);
   
   const formatDistance = (distance: number): string => {
     if (distance < 1000) {
@@ -689,7 +693,12 @@ Transform this to Freeman-speak while keeping all the factual information intact
                       Getting interesting facts...
                     </span>
                   ) : funFact ? (
-                    <span className="fact-text">{funFact}</span>
+                    <span 
+                      className="fact-text-truncated" 
+                      title={funFact}
+                    >
+                      {funFact.length > 100 ? `${funFact.substring(0, 100)}...` : funFact}
+                    </span>
                   ) : (
                     <span className="fact-placeholder">Click to load fascinating details!</span>
                   )}
@@ -716,7 +725,12 @@ Transform this to Freeman-speak while keeping all the factual information intact
                       Loading historical context...
                     </span>
                   ) : historicalSignificance ? (
-                    <span className="significance-text">{historicalSignificance}</span>
+                    <span 
+                      className="significance-text-truncated" 
+                      title={historicalSignificance}
+                    >
+                      {historicalSignificance.length > 100 ? `${historicalSignificance.substring(0, 100)}...` : historicalSignificance}
+                    </span>
                   ) : (
                     <span className="fact-placeholder">Click to discover historical importance!</span>
                   )}
@@ -726,6 +740,26 @@ Transform this to Freeman-speak while keeping all the factual information intact
               <div className="detail-item coordinates">
                 <strong>Coordinates:</strong>
                 <span>{spot.latitude.toFixed(6)}, {spot.longitude.toFixed(6)}</span>
+              </div>
+              
+              <div className="detail-item">
+                <div className="detail-header">
+                  <strong>Navigation:</strong>
+                  <button 
+                    className="route-button"
+                    onClick={() => setShowRoute(!showRoute)}
+                    title="Get directions to this location"
+                  >
+                    🗺️ {showRoute ? 'Hide Route' : 'Get Route'}
+                  </button>
+                </div>
+                {showRoute && (
+                  <RouteDisplay
+                    start={{ lat: userLatitude, lng: userLongitude }}
+                    end={{ lat: spot.latitude, lng: spot.longitude }}
+                    onClose={() => setShowRoute(false)}
+                  />
+                )}
               </div>
             </div>
           </div>

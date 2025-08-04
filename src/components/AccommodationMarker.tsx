@@ -1,9 +1,13 @@
+import React, { useState } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import { divIcon } from 'leaflet';
+import RouteDisplay from './RouteDisplay';
 import type { AccommodationSpot } from '../types/AccommodationSpot';
 
 interface AccommodationMarkerProps {
   spot: AccommodationSpot;
+  userLatitude: number;
+  userLongitude: number;
 }
 
 // Custom icon for accommodation spots
@@ -61,8 +65,9 @@ const getCategoryColor = (category: string): string => {
   return colorMap[category] || '#9370DB';
 };
 
-const AccommodationMarker: React.FC<AccommodationMarkerProps> = ({ spot }) => {
+const AccommodationMarker: React.FC<AccommodationMarkerProps> = ({ spot, userLatitude, userLongitude }) => {
   const icon = createAccommodationIcon(spot.category);
+  const [showRoute, setShowRoute] = useState(false);
 
   return (
     <Marker
@@ -88,6 +93,24 @@ const AccommodationMarker: React.FC<AccommodationMarkerProps> = ({ spot }) => {
             <p className="accommodation-description">
               {spot.description}
             </p>
+            
+            <div className="accommodation-navigation">
+              <button 
+                className="route-button"
+                onClick={() => setShowRoute(!showRoute)}
+                title="Get directions to this location"
+              >
+                🗺️ {showRoute ? 'Hide Route' : 'Get Route'}
+              </button>
+            </div>
+            
+            {showRoute && (
+              <RouteDisplay
+                start={{ lat: userLatitude, lng: userLongitude }}
+                end={{ lat: spot.latitude, lng: spot.longitude }}
+                onClose={() => setShowRoute(false)}
+              />
+            )}
           </div>
         </div>
       </Popup>

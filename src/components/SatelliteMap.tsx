@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import type { Map as LeafletMap } from 'leaflet';
@@ -7,6 +7,7 @@ import FoodBeverageMarker from './FoodBeverageMarker';
 import AccommodationMarker from './AccommodationMarker';
 import BoundsOverlay from './BoundsOverlay';
 import MapInstanceCapture from './MapInstanceCapture';
+import MapSearchButton from './MapSearchButton';
 import type { HistoricalSpot } from '../types/HistoricalSpot';
 import type { FoodBeverageSpot } from '../types/FoodBeverageSpot';
 import type { AccommodationSpot } from '../types/AccommodationSpot';
@@ -34,6 +35,13 @@ interface SatelliteMapProps {
   showHistoricalSpots?: boolean;
   showFoodBeverageSpots?: boolean;
   showAccommodationSpots?: boolean;
+  mapView?: 'satellite' | 'street';
+  onSearch?: (centerLat: number, centerLng: number) => void;
+  onClear?: () => void;
+  onToggleBounds?: () => void;
+  onRecenter?: () => void;
+  spotsLoading?: boolean;
+  spotsCount?: number;
 }
 
 const SatelliteMap: React.FC<SatelliteMapProps> = ({ 
@@ -49,11 +57,26 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
   searchRadius = 500,
   showHistoricalSpots = true,
   showFoodBeverageSpots = true,
-  showAccommodationSpots = true
+  showAccommodationSpots = true,
+  mapView = 'satellite',
+  onSearch,
+  onClear,
+  onToggleBounds,
+  onRecenter,
+  spotsLoading = false,
+  spotsCount = 0
 }) => {
+  const [map, setMap] = useState<LeafletMap | null>(null);
+
+  const handleMapReady = (mapInstance: LeafletMap) => {
+    setMap(mapInstance);
+    if (onMapReady) {
+      onMapReady(mapInstance);
+    }
+  };
 
   return (
-    <div style={{ height: '500px', width: '100%', borderRadius: '8px', overflow: 'hidden' }}>
+    <div className="map-container" style={{ position: 'relative' }}>
       <MapContainer
         center={[latitude, longitude]}
         zoom={16}
@@ -61,21 +84,22 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
         scrollWheelZoom={true}
       >
         {/* Map instance capture */}
-        {onMapReady && <MapInstanceCapture onMapReady={onMapReady} />}
+        <MapInstanceCapture onMapReady={handleMapReady} />
 
-        {/* Satellite tile layer from Esri */}
-        <TileLayer
-          attribution='&copy; <a href="https://www.esri.com/">Esri</a> &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-          maxZoom={19}
-        />
-        
-        {/* Alternative satellite layer option (uncomment to use) */}
-        {/* <TileLayer
-          attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a>'
-          url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-          maxZoom={20}
-        /> */}
+        {/* Dynamic tile layer based on map view */}
+        {mapView === 'satellite' ? (
+          <TileLayer
+            attribution='&copy; <a href="https://www.esri.com/">Esri</a> &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            maxZoom={19}
+          />
+        ) : (
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            maxZoom={19}
+          />
+        )}
 
         <Marker position={[latitude, longitude]}>
           <Popup>
@@ -120,6 +144,8 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           <FoodBeverageMarker 
             key={spot.id} 
             spot={spot}
+            userLatitude={latitude}
+            userLongitude={longitude}
           />
         ))}
 
@@ -128,9 +154,27 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           <AccommodationMarker 
             key={spot.id} 
             spot={spot}
+            userLatitude={latitude}
+            userLongitude={longitude}
           />
         ))}
       </MapContainer>
+      
+      {/* Floating Map Controls Overlay */}
+      {onSearch && onClear && onToggleBounds && onRecenter && (
+        <MapSearchButton
+          map={map}
+          onSearch={onSearch}
+          loading={spotsLoading}
+          spotsCount={spotsCount}
+          onClear={onClear}
+          showBounds={showBounds}
+          onToggleBounds={onToggleBounds}
+          searchRadius={searchRadius}
+          onRecenter={onRecenter}
+          userLocation={{ latitude, longitude }}
+        />
+      )}
     </div>
   );
 };

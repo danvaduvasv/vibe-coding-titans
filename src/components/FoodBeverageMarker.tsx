@@ -1,9 +1,13 @@
+import React, { useState } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import { divIcon } from 'leaflet';
+import RouteDisplay from './RouteDisplay';
 import type { FoodBeverageSpot } from '../types/FoodBeverageSpot';
 
 interface FoodBeverageMarkerProps {
   spot: FoodBeverageSpot;
+  userLatitude: number;
+  userLongitude: number;
 }
 
 // Custom icon for food & beverage spots
@@ -59,8 +63,9 @@ const getCategoryColor = (category: string): string => {
   return colorMap[category] || '#FFD700';
 };
 
-const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot }) => {
+const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot, userLatitude, userLongitude }) => {
   const icon = createFoodIcon(spot.category);
+  const [showRoute, setShowRoute] = useState(false);
 
   return (
     <Marker
@@ -86,6 +91,24 @@ const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot }) => {
             <p className="food-description">
               {spot.description}
             </p>
+            
+            <div className="food-navigation">
+              <button 
+                className="route-button"
+                onClick={() => setShowRoute(!showRoute)}
+                title="Get directions to this location"
+              >
+                🗺️ {showRoute ? 'Hide Route' : 'Get Route'}
+              </button>
+            </div>
+            
+            {showRoute && (
+              <RouteDisplay
+                start={{ lat: userLatitude, lng: userLongitude }}
+                end={{ lat: spot.latitude, lng: spot.longitude }}
+                onClose={() => setShowRoute(false)}
+              />
+            )}
           </div>
         </div>
       </Popup>
