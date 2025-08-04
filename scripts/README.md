@@ -307,6 +307,7 @@ aws secretsmanager create-secret \
   --secret-string '{
     "VITE_OPENAI_API_KEY": "your-openai-api-key",
     "VITE_GEOAPIFY_API_KEY": "your-geoapify-api-key",
+    "VITE_MAPBOX_API_KEY": "your-mapbox-api-key",
     "VITE_OPENAI_API_URL": "https://api.openai.com/v1/chat/completions",
     "VITE_GEOAPIFY_API_URL": "https://api.geoapify.com/v1"
   }' \
@@ -319,6 +320,7 @@ aws secretsmanager create-secret \
   --secret-string '{
     "VITE_OPENAI_API_KEY": "your-qa-openai-api-key",
     "VITE_GEOAPIFY_API_KEY": "your-qa-geoapify-api-key",
+    "VITE_MAPBOX_API_KEY": "your-qa-mapbox-api-key",
     "VITE_OPENAI_API_URL": "https://api.openai.com/v1/chat/completions",
     "VITE_GEOAPIFY_API_URL": "https://api.geoapify.com/v1"
   }' \
@@ -331,6 +333,7 @@ aws secretsmanager create-secret \
   --secret-string '{
     "VITE_OPENAI_API_KEY": "your-prod-openai-api-key",
     "VITE_GEOAPIFY_API_KEY": "your-prod-geoapify-api-key",
+    "VITE_MAPBOX_API_KEY": "your-prod-mapbox-api-key",
     "VITE_OPENAI_API_URL": "https://api.openai.com/v1/chat/completions",
     "VITE_GEOAPIFY_API_URL": "https://api.geoapify.com/v1"
   }' \
@@ -343,7 +346,8 @@ aws secretsmanager update-secret \
   --secret-id "/secrets/develop-chronoguide" \
   --secret-string '{
     "VITE_OPENAI_API_KEY": "updated-openai-key",
-    "VITE_GEOAPIFY_API_KEY": "updated-geoapify-key"
+    "VITE_GEOAPIFY_API_KEY": "updated-geoapify-key",
+    "VITE_MAPBOX_API_KEY": "updated-mapbox-key"
   }' \
   --region eu-west-1
 ```

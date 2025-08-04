@@ -7,7 +7,8 @@ echo "🚀 Starting ChronoGuide App..."
 cat > ./dist/config.js << EOF
 window.__RUNTIME_CONFIG__ = {
   VITE_OPENAI_API_KEY: "${VITE_OPENAI_API_KEY:-}",
-  VITE_GEOAPIFY_API_KEY: "${VITE_GEOAPIFY_API_KEY:-}"
+  VITE_GEOAPIFY_API_KEY: "${VITE_GEOAPIFY_API_KEY:-}",
+  VITE_MAPBOX_API_KEY: "${VITE_MAPBOX_API_KEY:-}"
 };
 EOF
 
@@ -20,6 +21,7 @@ echo "✅ Runtime configuration injected"
 echo "🌟 Environment variables loaded:"
 echo "   - VITE_OPENAI_API_KEY: ${VITE_OPENAI_API_KEY:+***}"
 echo "   - VITE_GEOAPIFY_API_KEY: ${VITE_GEOAPIFY_API_KEY:+***}"
+echo "   - VITE_MAPBOX_API_KEY: ${VITE_MAPBOX_API_KEY:+***}"
 echo "   - PORT: ${PORT:-8080}"
 
 # Start the server

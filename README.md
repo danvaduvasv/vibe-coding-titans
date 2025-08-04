@@ -38,10 +38,12 @@ A modern React application that helps you discover historical places, food & bev
    - Copy `.env.example` to `.env`
    - Get your free Geoapify API key from [Geoapify Console](https://www.geoapify.com/)
    - Get your OpenAI API key from [OpenAI Platform](https://platform.openai.com/api-keys)
-   - Update your `.env` file with both keys:
+   - Get your Mapbox API key from [Mapbox Platform](https://account.mapbox.com/access-tokens/) (optional, for enhanced routing)
+   - Update your `.env` file with the keys:
    ```bash
    VITE_GEOAPIFY_API_KEY=your-actual-geoapify-api-key-here
    VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key-here
+   VITE_MAPBOX_API_KEY=your-actual-mapbox-api-key-here
    ```
 
 4. Start the development server:
@@ -115,6 +117,7 @@ Create a `.env` file in the project root with your API keys:
 # Required API Keys
 VITE_GEOAPIFY_API_KEY=your-actual-geoapify-api-key-here
 VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key-here
+VITE_MAPBOX_API_KEY=your-actual-mapbox-api-key-here
 
 # Optional: Custom port (default: 3000)
 PORT=3000

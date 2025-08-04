@@ -435,13 +435,13 @@ check_secrets_manager() {
         echo "aws secretsmanager create-secret \\"
         echo "  --name '$SECRET_NAME' \\"
         echo "  --description 'Environment variables for ChronoGuide $ENVIRONMENT environment' \\"
-        echo "  --secret-string '{\"VITE_OPENAI_API_KEY\":\"your-openai-key\",\"VITE_GEOAPIFY_API_KEY\":\"your-geoapify-key\",\"VITE_ELEVENLABS_API_KEY\":\"your-elevenlabs-key\",\"VITE_ENABLE_ELEVENLABS\":\"true\",\"VITE_MEGATRON_VOICE_ID\":\"your-megatron-voice-id\",\"VITE_FREEMAN_VOICE_ID\":\"your-freeman-voice-id\"}' \\"
+        echo "  --secret-string '{\"VITE_OPENAI_API_KEY\":\"your-openai-key\",\"VITE_GEOAPIFY_API_KEY\":\"your-geoapify-key\",\"VITE_MAPBOX_API_KEY\":\"your-mapbox-key\",\"VITE_ELEVENLABS_API_KEY\":\"your-elevenlabs-key\",\"VITE_ENABLE_ELEVENLABS\":\"true\",\"VITE_MEGATRON_VOICE_ID\":\"your-megatron-voice-id\",\"VITE_FREEMAN_VOICE_ID\":\"your-freeman-voice-id\"}' \\"
         echo "  --region '$AWS_REGION'"
         echo
         echo -e "${YELLOW}Or update an existing secret:${NC}"
         echo "aws secretsmanager update-secret \\"
         echo "  --secret-id '$SECRET_NAME' \\"
-        echo "  --secret-string '{\"VITE_OPENAI_API_KEY\":\"your-openai-key\",\"VITE_GEOAPIFY_API_KEY\":\"your-geoapify-key\",\"VITE_ELEVENLABS_API_KEY\":\"your-elevenlabs-key\",\"VITE_ENABLE_ELEVENLABS\":\"true\",\"VITE_MEGATRON_VOICE_ID\":\"your-megatron-voice-id\",\"VITE_FREEMAN_VOICE_ID\":\"your-freeman-voice-id\"}' \\"
+        echo "  --secret-string '{\"VITE_OPENAI_API_KEY\":\"your-openai-key\",\"VITE_GEOAPIFY_API_KEY\":\"your-geoapify-key\",\"VITE_MAPBOX_API_KEY\":\"your-mapbox-key\",\"VITE_ELEVENLABS_API_KEY\":\"your-elevenlabs-key\",\"VITE_ENABLE_ELEVENLABS\":\"true\",\"VITE_MEGATRON_VOICE_ID\":\"your-megatron-voice-id\",\"VITE_FREEMAN_VOICE_ID\":\"your-freeman-voice-id\"}' \\"
         echo "  --region '$AWS_REGION'"
         echo
         exit 1
@@ -474,6 +474,7 @@ create_apprunner_config() {
         "RuntimeEnvironmentSecrets": {
           "VITE_OPENAI_API_KEY": "${SECRET_ARN}:VITE_OPENAI_API_KEY::",
           "VITE_GEOAPIFY_API_KEY": "${SECRET_ARN}:VITE_GEOAPIFY_API_KEY::",
+          "VITE_MAPBOX_API_KEY": "${SECRET_ARN}:VITE_MAPBOX_API_KEY::",
           "VITE_ELEVENLABS_API_KEY": "${SECRET_ARN}:VITE_ELEVENLABS_API_KEY::",
           "VITE_ENABLE_ELEVENLABS": "${SECRET_ARN}:VITE_ENABLE_ELEVENLABS::",
           "VITE_MEGATRON_VOICE_ID": "${SECRET_ARN}:VITE_MEGATRON_VOICE_ID::",
@@ -579,6 +580,7 @@ update_service() {
         "RuntimeEnvironmentSecrets": {
           "VITE_OPENAI_API_KEY": "${SECRET_ARN}:VITE_OPENAI_API_KEY::",
           "VITE_GEOAPIFY_API_KEY": "${SECRET_ARN}:VITE_GEOAPIFY_API_KEY::",
+          "VITE_MAPBOX_API_KEY": "${SECRET_ARN}:VITE_MAPBOX_API_KEY::",
           "VITE_ELEVENLABS_API_KEY": "${SECRET_ARN}:VITE_ELEVENLABS_API_KEY::",
           "VITE_ENABLE_ELEVENLABS": "${SECRET_ARN}:VITE_ENABLE_ELEVENLABS::",
           "VITE_MEGATRON_VOICE_ID": "${SECRET_ARN}:VITE_MEGATRON_VOICE_ID::",
@@ -762,6 +764,7 @@ main() {
     echo -e "${PURPLE}║ {                                                              ║${NC}"
     echo -e "${PURPLE}║   \"VITE_OPENAI_API_KEY\": \"your-openai-key\",                   ║${NC}"
     echo -e "${PURPLE}║   \"VITE_GEOAPIFY_API_KEY\": \"your-geoapify-key\",                 ║${NC}"
+    echo -e "${PURPLE}║   \"VITE_MAPBOX_API_KEY\": \"your-mapbox-key\",                    ║${NC}"
     echo -e "${PURPLE}║   \"VITE_ELEVENLABS_API_KEY\": \"your-elevenlabs-key\",             ║${NC}"
     echo -e "${PURPLE}║   \"VITE_ENABLE_ELEVENLABS\": \"true\",                             ║${NC}"
     echo -e "${PURPLE}║   \"VITE_MEGATRON_VOICE_ID\": \"your-megatron-voice-id\",           ║${NC}"
