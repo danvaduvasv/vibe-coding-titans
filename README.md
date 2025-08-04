@@ -1,23 +1,21 @@
-# 🛰️ Satellite Location Tracker
+# 🗺️ ChronoGuide - Historical Discovery App
 
-A modern React application that uses your device's geolocation to pinpoint your exact location on a high-resolution satellite map with zoom capabilities.
+A modern React application that helps you discover historical places, food & beverage spots, and accommodation around your location with interactive maps and AI-enhanced information.
 
 ## ✨ Features
 
 - **Real-time Geolocation**: Automatically detects your current location using the browser's geolocation API
-- **Satellite Imagery**: High-resolution satellite map tiles from Esri World Imagery
-- **Interactive Map**: Zoom, pan, and explore with full Leaflet map controls
-- **Location Marker**: Precise pin showing your exact coordinates
-- **Tourist Attraction Focus**: Strict filtering for verified tourist attractions, museums, monuments, and heritage sites using Geoapify Places API
-- **Visual Search Boundaries**: Optional overlay showing the exact search radius as a circle on the map
-- **Interactive Historical Markers**: Colored + markers that expand with detailed historical information
-- **Smart Categorization**: Historical spots categorized by type (Architecture, Military, Religious, Cultural, etc.)
-- **Distance Calculation**: Shows exact distance from search center to each historical spot
-- **Real Data**: Verified historical places with accurate coordinates from Geoapify's database
-- **AI-Enhanced Information**: Interactive OpenAI-powered content including fun facts, historical significance, and character voice transformations (lazy-loaded to minimize API calls)
-- **Accuracy Display**: Shows GPS accuracy information
+- **Interactive Maps**: Street and satellite view with zoom, pan, and full Leaflet controls
+- **Multi-Category Discovery**: Historical spots, food & beverage locations, and accommodation
+- **Modern UI**: Sidebar layout with toggle controls and floating map buttons
+- **Click-to-Expand Content**: Fun facts and historical significance with expandable text
+- **AI-Enhanced Information**: OpenAI-powered content with character voice transformations
+- **Route Planning**: Calculate routes to points of interest from your current location
+- **Visual Search Boundaries**: Optional overlay showing search radius as a circle
+- **Smart Categorization**: Spots categorized by type with color-coded markers
+- **Distance Calculation**: Real-time distance from your location to each spot
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Modern UI**: Beautiful gradient background with clean, modern interface
+- **Modern Aesthetics**: Glass morphism design with gradients and smooth animations
 
 ## 🚀 Getting Started
 
