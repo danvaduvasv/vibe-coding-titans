@@ -256,22 +256,6 @@ function App() {
 
           {!loading && !error && latitude !== null && longitude !== null && (
             <>
-              {/* Map View Toggle */}
-              <div className="map-view-toggle">
-                <button 
-                  className={`view-toggle-button ${mapView === 'satellite' ? 'active' : ''}`}
-                  onClick={toggleMapView}
-                >
-                  🛰️ Satellite
-                </button>
-                <button 
-                  className={`view-toggle-button ${mapView === 'street' ? 'active' : ''}`}
-                  onClick={toggleMapView}
-                >
-                  🗺️ Street
-                </button>
-              </div>
-
               {/* Map */}
               <div className="map-container">
                 <SatelliteMap 

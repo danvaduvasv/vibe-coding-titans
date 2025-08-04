@@ -733,43 +733,7 @@ body {
   gap: 20px;
 }
 
-/* Map View Toggle */
-.map-view-toggle {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-bottom: 16px;
-}
 
-.view-toggle-button {
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  color: #374151;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.view-toggle-button:hover {
-  border-color: #3b82f6;
-  background: #f8fafc;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.view-toggle-button.active {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  border-color: #3b82f6;
-  color: white;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
 
 /* Map Container */
 .map-container {
@@ -1894,16 +1858,6 @@ body {
   
   .app-header h1 {
     font-size: 2.5rem;
-  }
-  
-  .map-view-toggle {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .view-toggle-button {
-    padding: 10px 20px;
-    font-size: 0.9rem;
   }
 
   .map-container {

@@ -45,25 +45,54 @@ const NavigationPanel: React.FC<NavigationPanelProps> = ({
     const instruction = step.instruction || '';
     console.log('Maneuver type:', maneuverType, 'Instruction:', instruction, 'Step:', step);
     
-    // If maneuver type is "turn", parse the instruction to determine turn type
-    if (maneuverType === 'turn' || maneuverType === 'turn-left' || maneuverType === 'turn-right') {
-      const instructionLower = instruction.toLowerCase();
-      
-      if (instructionLower.includes('sharp left') || instructionLower.includes('turn sharp left')) {
-        return '⬅️';
-      } else if (instructionLower.includes('sharp right') || instructionLower.includes('turn sharp right')) {
-        return '➡️';
-      } else if (instructionLower.includes('slight left') || instructionLower.includes('turn slight left')) {
-        return '↖️';
-      } else if (instructionLower.includes('slight right') || instructionLower.includes('turn slight right')) {
-        return '↗️';
-      } else if (instructionLower.includes('left') || instructionLower.includes('turn left')) {
-        return '⬅️';
-      } else if (instructionLower.includes('right') || instructionLower.includes('turn right')) {
-        return '➡️';
+    // Parse instruction text for more accurate direction detection
+    const instructionLower = instruction.toLowerCase();
+    
+    // Check for specific instruction patterns first
+    if (instructionLower.includes('turn') && instructionLower.includes('right')) {
+      if (instructionLower.includes('slight') || instructionLower.includes('slightly')) {
+        return '↗️'; // Slightly right
+      } else if (instructionLower.includes('sharp')) {
+        return '➡️'; // Sharp right
+      } else {
+        return '➡️'; // Regular right
       }
     }
     
+    if (instructionLower.includes('turn') && instructionLower.includes('left')) {
+      if (instructionLower.includes('slight') || instructionLower.includes('slightly')) {
+        return '↖️'; // Slightly left
+      } else if (instructionLower.includes('sharp')) {
+        return '⬅️'; // Sharp left
+      } else {
+        return '⬅️'; // Regular left
+      }
+    }
+    
+    // Check for "keep" instructions
+    if (instructionLower.includes('keep') && instructionLower.includes('right')) {
+      return '↗️'; // Slightly right
+    }
+    
+    if (instructionLower.includes('keep') && instructionLower.includes('left')) {
+      return '↖️'; // Slightly left
+    }
+    
+    // Check for "bear" instructions
+    if (instructionLower.includes('bear') && instructionLower.includes('right')) {
+      return '↗️'; // Slightly right
+    }
+    
+    if (instructionLower.includes('bear') && instructionLower.includes('left')) {
+      return '↖️'; // Slightly left
+    }
+    
+    // Check for "continue" or "straight" instructions
+    if (instructionLower.includes('continue') || instructionLower.includes('straight') || instructionLower.includes('go straight')) {
+      return '⬆️'; // Forward
+    }
+    
+    // Fallback to maneuver type mapping
     const arrowMap: { [key: string]: string } = {
       // Mapbox maneuver types
       'turn-left': '⬅️',
