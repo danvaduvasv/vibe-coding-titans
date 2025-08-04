@@ -62,7 +62,7 @@ const MapSearchButton: React.FC<MapSearchButtonProps> = ({
           disabled={!map || userLocation.latitude === null || userLocation.longitude === null}
           title="Return to your current GPS location"
         >
-          📍
+          🎯
         </button>
         
         {/* Search Button - Blue with transparent background */}
@@ -96,7 +96,7 @@ const MapSearchButton: React.FC<MapSearchButtonProps> = ({
               disabled={loading}
               title={showBounds ? 'Hide radius' : `Show ${searchRadius}m radius`}
             >
-              {showBounds ? '👁️' : '📐'}
+              {showBounds ? '🙈' : '📐'}
             </button>
           </div>
         )}

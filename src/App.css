@@ -487,6 +487,7 @@ body {
   backdrop-filter: blur(10px);
   max-height: 80vh;
   overflow: hidden;
+  width: 390px; /* 30% wider than default */
 }
 
 .historical-spot-content {
@@ -583,13 +584,13 @@ body {
 .spot-details {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .detail-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .detail-item strong {
@@ -616,7 +617,7 @@ body {
 }
 
 .fun-fact, .historical-significance {
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .fact-text, .significance-text {
@@ -702,6 +703,73 @@ body {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(-4px);
+}
+
+/* Expandable text sections */
+.fact-text-expandable, .significance-text-expandable {
+  color: #475569;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  font-style: italic;
+  background: #f8fafc;
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  position: relative;
+}
+
+.significance-text-expandable {
+  color: #374151;
+  font-weight: 500;
+  border-left-color: #8b5cf6;
+}
+
+.fact-text-expandable:hover, .significance-text-expandable:hover {
+  background: #f1f5f9;
+  border-left-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+.significance-text-expandable:hover {
+  background: #f3f4f6;
+  border-left-color: #7c3aed;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
+}
+
+.fact-text-expandable.expanded, .significance-text-expandable.expanded {
+  background: #eff6ff;
+  border-left-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.significance-text-expandable.expanded {
+  background: #f5f3ff;
+  border-left-color: #8b5cf6;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.fact-text-content, .significance-text-content {
+  flex: 1;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.expand-indicator {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.fact-text-expandable.expanded .expand-indicator,
+.significance-text-expandable.expanded .expand-indicator {
+  transform: rotate(180deg);
 }
 
 .loading-fact {

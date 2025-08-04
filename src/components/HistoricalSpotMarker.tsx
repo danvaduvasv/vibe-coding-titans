@@ -76,6 +76,10 @@ const HistoricalSpotMarker: React.FC<HistoricalSpotMarkerProps> = ({ spot, userL
   // State for route display
   const [showRoute, setShowRoute] = useState(false);
   
+  // State for expanded sections
+  const [expandedFunFact, setExpandedFunFact] = useState(false);
+  const [expandedSignificance, setExpandedSignificance] = useState(false);
+  
   const formatDistance = (distance: number): string => {
     if (distance < 1000) {
       return `${Math.round(distance)}m`;
@@ -693,12 +697,17 @@ Transform this to Freeman-speak while keeping all the factual information intact
                       Getting interesting facts...
                     </span>
                   ) : funFact ? (
-                    <span 
-                      className="fact-text-truncated" 
-                      title={funFact}
+                    <div 
+                      className={`fact-text-expandable ${expandedFunFact ? 'expanded' : ''}`}
+                      onClick={() => setExpandedFunFact(!expandedFunFact)}
                     >
-                      {funFact.length > 100 ? `${funFact.substring(0, 100)}...` : funFact}
-                    </span>
+                      <span className="fact-text-content">
+                        {expandedFunFact ? funFact : (funFact.length > 100 ? `${funFact.substring(0, 100)}...` : funFact)}
+                      </span>
+                      <span className="expand-indicator">
+                        {expandedFunFact ? '📄' : '📖'}
+                      </span>
+                    </div>
                   ) : (
                     <span className="fact-placeholder">Click to load fascinating details!</span>
                   )}
@@ -725,12 +734,17 @@ Transform this to Freeman-speak while keeping all the factual information intact
                       Loading historical context...
                     </span>
                   ) : historicalSignificance ? (
-                    <span 
-                      className="significance-text-truncated" 
-                      title={historicalSignificance}
+                    <div 
+                      className={`significance-text-expandable ${expandedSignificance ? 'expanded' : ''}`}
+                      onClick={() => setExpandedSignificance(!expandedSignificance)}
                     >
-                      {historicalSignificance.length > 100 ? `${historicalSignificance.substring(0, 100)}...` : historicalSignificance}
-                    </span>
+                      <span className="significance-text-content">
+                        {expandedSignificance ? historicalSignificance : (historicalSignificance.length > 100 ? `${historicalSignificance.substring(0, 100)}...` : historicalSignificance)}
+                      </span>
+                      <span className="expand-indicator">
+                        {expandedSignificance ? '📄' : '📖'}
+                      </span>
+                    </div>
                   ) : (
                     <span className="fact-placeholder">Click to discover historical importance!</span>
                   )}
