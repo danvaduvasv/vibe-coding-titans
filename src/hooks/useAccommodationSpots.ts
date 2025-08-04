@@ -10,7 +10,7 @@ export const useAccommodationSpots = () => {
   const searchSpots = useCallback(async (
     centerLat: number, 
     centerLng: number, 
-    radiusMeters: number = 500
+    radiusMeters: number = 2000
   ) => {
     setLoading(true);
     setError(null);

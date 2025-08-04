@@ -11,11 +11,13 @@ A modern React application that helps you discover historical places, food & bev
 - **Click-to-Expand Content**: Fun facts and historical significance with expandable text
 - **AI-Enhanced Information**: OpenAI-powered content with character voice transformations
 - **Route Planning**: Calculate routes to points of interest from your current location
+- **Navigation Panel**: Turn-by-turn directions with transport mode selection
 - **Visual Search Boundaries**: Optional overlay showing search radius as a circle
 - **Smart Categorization**: Spots categorized by type with color-coded markers
 - **Distance Calculation**: Real-time distance from your location to each spot
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Modern Aesthetics**: Glass morphism design with gradients and smooth animations
+- **Compact Header**: Optimized header height for better space utilization
 
 ## 🚀 Getting Started
 
@@ -196,12 +198,13 @@ When you first visit the app, your browser will ask for location permissions. Ma
 
 - **🖱️ Scroll** to zoom in/out
 - **🖐️ Click and drag** to position the map center at your area of interest
-- **📍 Click your location marker** to see detailed location information
+- **🎯 Click your location marker** to see detailed location information
 - **🔍 Click "Find Historical Spots"** button to search within your selected radius centered on the map
-- **📐 Click "Show/Hide Radius"** to toggle the visual search area circle
+- **🙈 Click "Show/Hide Radius"** to toggle the visual search area circle
 - **➕ Click historical spot markers** (+ signs) to see historical details, significance, and real-time GPS distance
 - **🎨 Color-coded markers** by category (Architecture, Military, Religious, Cultural, etc.)
 - **✕ Click "Clear"** button to remove historical spots and bounds from the map
+- **🚗 Click "Get Route"** in popups to calculate navigation directions
 - **Zoom controls** available in the top-left corner of the map
 
 ## 🛠️ Built With
@@ -268,12 +271,21 @@ src/
 ├── components/
 │   ├── SatelliteMap.tsx           # Main map component
 │   ├── HistoricalSpotMarker.tsx   # Custom + markers for historical spots
+│   ├── FoodBeverageMarker.tsx    # Food & beverage spot markers
+│   ├── AccommodationMarker.tsx    # Accommodation spot markers
+│   ├── NavigationPanel.tsx        # Route planning and directions
+│   ├── MapSearchButton.tsx        # Search controls overlay
 │   └── LoadingSpinner.tsx         # Loading state component
 ├── hooks/
 │   ├── useGeolocation.ts          # Custom geolocation hook
 │   └── useHistoricalSpots.ts      # Custom hook for historical spots
 ├── services/
-│   └── openaiService.ts           # OpenAI API integration
+│   ├── openaiService.ts           # OpenAI API integration
+│   ├── geoapifyService.ts         # Geoapify Places API integration
+│   ├── routeService.ts            # OSRM route calculation
+│   ├── googleMapsService.ts       # Google Maps Directions API
+│   ├── mapboxService.ts           # Mapbox Directions API
+│   └── routingService.ts          # Routing service abstraction
 ├── types/
 │   └── HistoricalSpot.ts          # TypeScript interfaces
 ├── App.tsx                        # Main app component

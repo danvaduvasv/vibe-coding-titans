@@ -6,6 +6,8 @@ import { useFoodBeverageSpots } from './hooks/useFoodBeverageSpots';
 import { useAccommodationSpots } from './hooks/useAccommodationSpots';
 import SatelliteMap from './components/SatelliteMap';
 import LoadingSpinner from './components/LoadingSpinner';
+import type { Route } from './services/routingService';
+import NavigationPanel from './components/NavigationPanel';
 import './App.css';
 
 function App() {
@@ -43,6 +45,9 @@ function App() {
   const [showAccommodationSpots, setShowAccommodationSpots] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mapView, setMapView] = useState<'satellite' | 'street'>('street');
+  const [currentRoute, setCurrentRoute] = useState<Route | null>(null);
+  const [showRoute, setShowRoute] = useState(false);
+  const [selectedDestination, setSelectedDestination] = useState<{ lat: number; lng: number } | null>(null);
 
   const handleMapReady = (mapInstance: LeafletMap) => {
     setMap(mapInstance);
@@ -92,15 +97,25 @@ function App() {
     setMapView(mapView === 'satellite' ? 'street' : 'satellite');
   };
 
-  const formatLocationInfo = () => {
-    if (!latitude || !longitude) return '';
-    
-    const lat = latitude.toFixed(6);
-    const lng = longitude.toFixed(6);
-    const acc = accuracy ? `±${accuracy.toFixed(0)}m` : 'Unknown';
-    
-    return `📍 Location: ${lat}, ${lng} (Accuracy: ${acc})`;
+  const handleRouteDisplay = (route: Route) => {
+    setCurrentRoute(route);
+    setShowRoute(true);
   };
+
+
+
+  const handleDestinationSelect = (lat: number, lng: number) => {
+    // Clear any existing route when selecting a new destination
+    setCurrentRoute(null);
+    setShowRoute(false);
+    setSelectedDestination({ lat, lng });
+  };
+
+  const handleCloseNavigation = () => {
+    setSelectedDestination(null);
+  };
+
+
 
   return (
     <div className="app">
@@ -123,11 +138,6 @@ function App() {
           </div>
 
                     <div className="sidebar-content">
-            <div className="location-info-sidebar">
-              <h3>📍 Current Location</h3>
-              <p className="location-text">{formatLocationInfo()}</p>
-            </div>
-
             {/* Category Filters */}
             <div className="category-filters">
               <h3>🗺️ Map Categories</h3>
@@ -285,7 +295,22 @@ function App() {
                   onRecenter={handleRecenterMap}
                   spotsLoading={spotsLoading || foodLoading || accommodationLoading}
                   spotsCount={historicalSpots.length + foodBeverageSpots.length + accommodationSpots.length}
+                  currentRoute={currentRoute}
+                  showRoute={showRoute}
+                  onRouteCalculated={handleRouteDisplay}
+                  onDestinationSelect={handleDestinationSelect}
                 />
+                
+                {/* Navigation Panel */}
+                {selectedDestination && (
+                  <NavigationPanel
+                    start={{ lat: latitude, lng: longitude }}
+                    end={selectedDestination}
+                    onRouteCalculated={handleRouteDisplay}
+                    onClose={handleCloseNavigation}
+                    showRoute={showRoute}
+                  />
+                )}
               </div>
 
               {/* Map Help */}

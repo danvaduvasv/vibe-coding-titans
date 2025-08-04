@@ -6,7 +6,7 @@ import {
 export const fetchHistoricalSpots = async (
   centerLatitude: number,
   centerLongitude: number,
-  radiusMeters: number = 500
+  radiusMeters: number = 2000
 ): Promise<HistoricalSpot[]> => {
   try {
     // Validate input coordinates

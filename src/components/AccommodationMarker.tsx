@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import { divIcon } from 'leaflet';
-import RouteDisplay from './RouteDisplay';
 import type { AccommodationSpot } from '../types/AccommodationSpot';
 
 interface AccommodationMarkerProps {
   spot: AccommodationSpot;
   userLatitude: number;
   userLongitude: number;
+  onDestinationSelect?: (lat: number, lng: number) => void;
 }
 
 // Custom icon for accommodation spots
@@ -65,9 +65,9 @@ const getCategoryColor = (category: string): string => {
   return colorMap[category] || '#9370DB';
 };
 
-const AccommodationMarker: React.FC<AccommodationMarkerProps> = ({ spot, userLatitude, userLongitude }) => {
+const AccommodationMarker: React.FC<AccommodationMarkerProps> = ({ spot, onDestinationSelect }) => {
   const icon = createAccommodationIcon(spot.category);
-  const [showRoute, setShowRoute] = useState(false);
+  const [expandedDescription, setExpandedDescription] = useState(false);
 
   return (
     <Marker
@@ -78,6 +78,21 @@ const AccommodationMarker: React.FC<AccommodationMarkerProps> = ({ spot, userLat
       <Popup>
         <div className="accommodation-popup">
           <h3 className="accommodation-name">{spot.name}</h3>
+          
+          <div className="detail-item">
+            <div 
+              className={`description-text-expandable ${expandedDescription ? 'expanded' : ''}`}
+              onClick={() => setExpandedDescription(!expandedDescription)}
+            >
+              <span className="description-text-content">
+                {expandedDescription ? spot.description : (spot.description.length > 100 ? `${spot.description.substring(0, 100)}...` : spot.description)}
+              </span>
+              <span className="expand-indicator">
+                {expandedDescription ? '📄' : '📖'}
+              </span>
+            </div>
+          </div>
+          
           <div className="accommodation-details">
             <p className="accommodation-category">
               <strong>Type:</strong> {spot.category}
@@ -87,30 +102,18 @@ const AccommodationMarker: React.FC<AccommodationMarkerProps> = ({ spot, userLat
                 <strong>Accommodation:</strong> {spot.accommodationType}
               </p>
             )}
-            <p className="accommodation-distance">
-              <strong>Distance:</strong> {spot.distance.toFixed(0)}m away
-            </p>
-            <p className="accommodation-description">
-              {spot.description}
-            </p>
-            
-            <div className="accommodation-navigation">
+            <div className="distance-route-row">
+              <div className="distance-info">
+                <span className="distance">{spot.distance.toFixed(0)}m away</span>
+              </div>
               <button 
                 className="route-button"
-                onClick={() => setShowRoute(!showRoute)}
+                onClick={() => onDestinationSelect?.(spot.latitude, spot.longitude)}
                 title="Get directions to this location"
               >
-                🗺️ {showRoute ? 'Hide Route' : 'Get Route'}
+                🗺️ Get Route
               </button>
             </div>
-            
-            {showRoute && (
-              <RouteDisplay
-                start={{ lat: userLatitude, lng: userLongitude }}
-                end={{ lat: spot.latitude, lng: spot.longitude }}
-                onClose={() => setShowRoute(false)}
-              />
-            )}
           </div>
         </div>
       </Popup>

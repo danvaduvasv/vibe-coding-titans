@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import type { Map as LeafletMap } from 'leaflet';
 import HistoricalSpotMarker from './HistoricalSpotMarker';
@@ -11,6 +11,7 @@ import MapSearchButton from './MapSearchButton';
 import type { HistoricalSpot } from '../types/HistoricalSpot';
 import type { FoodBeverageSpot } from '../types/FoodBeverageSpot';
 import type { AccommodationSpot } from '../types/AccommodationSpot';
+import type { Route } from '../services/routingService';
 import 'leaflet/dist/leaflet.css';
 
 delete (Icon.Default.prototype as any)._getIconUrl;
@@ -41,6 +42,11 @@ interface SatelliteMapProps {
   onRecenter?: () => void;
   spotsLoading?: boolean;
   spotsCount?: number;
+  currentRoute?: Route | null;
+  showRoute?: boolean;
+  onHideRoute?: () => void;
+  onRouteCalculated?: (route: Route) => void;
+  onDestinationSelect?: (lat: number, lng: number) => void;
 }
 
 const SatelliteMap: React.FC<SatelliteMapProps> = ({ 
@@ -63,9 +69,14 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
   onToggleBounds,
   onRecenter,
   spotsLoading = false,
-  spotsCount = 0
+  spotsCount = 0,
+  currentRoute = null,
+  showRoute = false,
+  onDestinationSelect
 }) => {
   const [map, setMap] = useState<LeafletMap | null>(null);
+
+
 
   const handleMapReady = (mapInstance: LeafletMap) => {
     setMap(mapInstance);
@@ -131,6 +142,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
             spot={spot} 
             userLatitude={latitude}
             userLongitude={longitude}
+            onDestinationSelect={onDestinationSelect}
           />
         ))}
 
@@ -140,6 +152,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
             spot={spot}
             userLatitude={latitude}
             userLongitude={longitude}
+            onDestinationSelect={onDestinationSelect}
           />
         ))}
 
@@ -149,8 +162,27 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
             spot={spot}
             userLatitude={latitude}
             userLongitude={longitude}
+            onDestinationSelect={onDestinationSelect}
           />
         ))}
+
+        {/* Route Polyline */}
+        {showRoute && currentRoute && currentRoute.geometry && currentRoute.geometry.length > 0 && (
+          <Polyline
+            positions={currentRoute.geometry}
+            pathOptions={{
+              color: '#3b82f6',
+              weight: 8,
+              opacity: 0.9,
+              fillOpacity: 0.3,
+              dashArray: currentRoute.profile === 'walking' ? '10, 10' : 
+                         currentRoute.profile === 'cycling' ? '20, 10, 5, 10' : undefined
+            }}
+            key={`route-${currentRoute.geometry.length}-${currentRoute.distance}-${currentRoute.duration}-${currentRoute.profile}`}
+          />
+        )}
+        
+
       </MapContainer>
       
       {onSearch && onClear && onToggleBounds && onRecenter && (

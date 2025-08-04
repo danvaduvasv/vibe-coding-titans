@@ -6,7 +6,7 @@ import {
 export const fetchFoodBeverageSpots = async (
   centerLatitude: number,
   centerLongitude: number,
-  radiusMeters: number = 500
+  radiusMeters: number = 2000
 ): Promise<FoodBeverageSpot[]> => {
   try {
     // Validate input coordinates

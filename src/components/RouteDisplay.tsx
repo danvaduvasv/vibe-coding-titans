@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+// import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Icon } from 'leaflet';
-import { routeService, type Route, type RoutePoint } from '../services/routeService';
+import { routingService, type Route, type RoutePoint } from '../services/routingService';
 import 'leaflet/dist/leaflet.css';
 
 // Fix Leaflet icon issues
@@ -16,29 +16,67 @@ interface RouteDisplayProps {
   start: RoutePoint;
   end: RoutePoint;
   onClose: () => void;
+  onRouteCalculated?: (route: Route) => void;
 }
 
-const RouteDisplay: React.FC<RouteDisplayProps> = ({ start, end, onClose }) => {
+const RouteDisplay: React.FC<RouteDisplayProps> = ({ start, end, onClose, onRouteCalculated }) => {
   const [route, setRoute] = useState<Route | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<'driving' | 'walking' | 'cycling'>('driving');
   const [showMap, setShowMap] = useState(false);
+  // const [mapReady, setMapReady] = useState(false);
+  // const [mapInstance, setMapInstance] = useState<any>(null);
+  // const mapRef = React.useRef<any>(null);
+  
+  // Debug: Log when map becomes ready - temporarily disabled
+  // useEffect(() => {
+  //   console.log('🗺️ Map ready state changed:', mapReady);
+  // }, [mapReady]);
+  
+  // Temporarily disabled manual path addition for debugging
+  // useEffect(() => {
+  //   if (mapReady && mapInstance) {
+  //     console.log('🗺️ Manually adding path components to map');
+  //     
+  //     // Add a simple polyline manually using dynamic import
+  //     import('leaflet').then((L) => {
+  //       console.log('🗺️ Leaflet imported, mapInstance:', mapInstance);
+  //       console.log('🗺️ Map bounds:', mapInstance.getBounds());
+  //       
+  //       const polyline = L.default.polyline([[start.lat, start.lng], [end.lat, end.lng]], {
+  //         color: '#00ff00',
+  //         weight: 10,
+  //         opacity: 1.0
+  //       });
+  //       
+  //       console.log('🗺️ Polyline created:', polyline);
+  //       polyline.addTo(mapInstance);
+  //       console.log('🗺️ Polyline added to map');
+  //       
+  //       // Force a redraw
+  //       mapInstance.invalidateSize();
+  //       
+  //       // Also try adding a simple marker to test
+  //       const marker = L.default.marker([start.lat, start.lng]).addTo(mapInstance);
+  //       console.log('🗺️ Test marker added:', marker);
+  //     });
+  //   }
+  // }, [mapReady, mapInstance, start, end]);
 
   const calculateRoute = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const result = await routeService.calculateRoute(start, end, profile);
-      console.log('🗺️ Route result:', result);
-      if (result) {
-        console.log('🗺️ Route geometry:', result.geometry);
-        console.log('🗺️ Geometry length:', result.geometry.length);
-      }
+      const result = await routingService.calculateRoute(start, end, profile);
       setRoute(result);
       if (result) {
         setShowMap(true);
+        // Notify parent component about the calculated route
+        if (onRouteCalculated) {
+          onRouteCalculated(result);
+        }
       }
     } catch (err) {
       setError('Failed to calculate route. Please try again.');
@@ -48,7 +86,7 @@ const RouteDisplay: React.FC<RouteDisplayProps> = ({ start, end, onClose }) => {
   };
 
   const openInMaps = () => {
-    const url = routeService.getDirectionsUrl(start, end);
+    const url = routingService.getDirectionsUrl(start, end);
     window.open(url, '_blank');
   };
 
@@ -56,19 +94,15 @@ const RouteDisplay: React.FC<RouteDisplayProps> = ({ start, end, onClose }) => {
     calculateRoute();
   }, [profile]);
 
-  // Calculate bounds for the map to show both start and end points
-  const bounds: [[number, number], [number, number]] = [
-    [Math.min(start.lat, end.lat), Math.min(start.lng, end.lng)],
-    [Math.max(start.lat, end.lat), Math.max(start.lng, end.lng)]
-  ];
 
-  // Custom route polyline style
-  const routeStyle = {
-    color: '#3b82f6',
-    weight: 8,
-    opacity: 0.9,
-    fillOpacity: 0.3
-  };
+
+  // Custom route polyline style - temporarily unused
+  // const routeStyle = {
+  //   color: '#3b82f6',
+  //   weight: 8,
+  //   opacity: 0.9,
+  //   fillOpacity: 0.3
+  // };
 
   return (
     <div className="route-display">
@@ -116,12 +150,12 @@ const RouteDisplay: React.FC<RouteDisplayProps> = ({ start, end, onClose }) => {
             <div className="route-stat">
               <span className="route-stat-icon">📏</span>
               <span className="route-stat-label">Distance:</span>
-              <span className="route-stat-value">{routeService.formatDistance(route.distance)}</span>
+                              <span className="route-stat-value">{routingService.formatDistance(route.distance)}</span>
             </div>
             <div className="route-stat">
               <span className="route-stat-icon">⏱️</span>
               <span className="route-stat-label">Duration:</span>
-              <span className="route-stat-value">{routeService.formatDuration(route.duration)}</span>
+                              <span className="route-stat-value">{routingService.formatDuration(route.duration)}</span>
             </div>
           </div>
 
@@ -139,78 +173,57 @@ const RouteDisplay: React.FC<RouteDisplayProps> = ({ start, end, onClose }) => {
 
           {showMap && (
             <div className="route-map-container">
-              <MapContainer
-                bounds={bounds}
-                style={{ height: '300px', width: '100%', borderRadius: '8px' }}
-                scrollWheelZoom={true}
-              >
-                {/* Debug info */}
-                {route && (
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: '10px', 
-                    left: '10px', 
-                    background: 'rgba(0,0,0,0.8)', 
-                    color: 'white', 
-                    padding: '5px', 
-                    borderRadius: '4px', 
-                    fontSize: '12px',
-                    zIndex: 1000
-                  }}>
-                    Route points: {route.geometry?.length || 0}<br/>
-                    Start: {start.lat.toFixed(4)}, {start.lng.toFixed(4)}<br/>
-                    End: {end.lat.toFixed(4)}, {end.lng.toFixed(4)}<br/>
-                    Distance: {routeService.formatDistance(route.distance)}
-                  </div>
-                )}
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  maxZoom={19}
-                />
-                
-                {/* Start marker */}
-                <Marker position={[start.lat, start.lng]}>
-                  <Popup>
-                    <div>
-                      <strong>📍 Start Point</strong><br />
-                      Your current location
-                    </div>
-                  </Popup>
-                </Marker>
-
-                {/* End marker */}
-                <Marker position={[end.lat, end.lng]}>
-                  <Popup>
-                    <div>
-                      <strong>🎯 Destination</strong><br />
-                      {route.distance > 0 && `${routeService.formatDistance(route.distance)} away`}
-                    </div>
-                  </Popup>
-                </Marker>
-
-                {/* Test line - always visible */}
-                <Polyline 
-                  positions={[[start.lat, start.lng], [end.lat, end.lng]]}
-                  pathOptions={{ color: '#ff0000', weight: 4, opacity: 0.8, dashArray: '10, 5' }}
-                  key={`test-line-${start.lat}-${start.lng}-${end.lat}-${end.lng}`}
-                />
-                
-                {/* Route polyline */}
-                {route.geometry && route.geometry.length > 0 ? (
-                  <Polyline 
-                    positions={route.geometry}
-                    pathOptions={routeStyle}
-                    key={`route-${profile}-${start.lat}-${start.lng}-${end.lat}-${end.lng}`}
-                  />
-                ) : (
-                  <Polyline 
-                    positions={[[start.lat, start.lng], [end.lat, end.lng]]}
-                    pathOptions={{ color: '#ef4444', weight: 6, opacity: 0.9, dashArray: '5, 5' }}
-                    key={`fallback-route-${start.lat}-${start.lng}-${end.lat}-${end.lng}`}
-                  />
-                )}
-              </MapContainer>
+              <div style={{ 
+                height: '300px', 
+                width: '100%', 
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                padding: '20px'
+              }}>
+                🗺️ Route Display
+                <br />
+                <span style={{ fontSize: '14px', marginTop: '10px', opacity: 0.8 }}>
+                  Route calculated successfully!
+                </span>
+                <br />
+                <span style={{ fontSize: '12px', marginTop: '5px', opacity: 0.6 }}>
+                                     Distance: {route.distance > 0 ? routingService.formatDistance(route.distance) : 'Calculating...'}
+                </span>
+                <br />
+                <span style={{ fontSize: '12px', marginTop: '5px', opacity: 0.6 }}>
+                                     Duration: {route.duration > 0 ? routingService.formatDuration(route.duration) : 'Calculating...'}
+                </span>
+                <br />
+                <button 
+                  style={{
+                    marginTop: '15px',
+                    padding: '8px 16px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    borderRadius: '6px',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                  onClick={() => {
+                    // Trigger route display on main map
+                    console.log('🗺️ Route coordinates:', route.geometry);
+                    if (onRouteCalculated) {
+                      onRouteCalculated(route);
+                    }
+                  }}
+                >
+                  🗺️ Show on Main Map
+                </button>
+              </div>
             </div>
           )}
 
@@ -223,7 +236,7 @@ const RouteDisplay: React.FC<RouteDisplayProps> = ({ start, end, onClose }) => {
                   <div className="step-content">
                     <div className="step-instruction">{step.instruction}</div>
                     <div className="step-details">
-                      {routeService.formatDistance(step.distance)} • {routeService.formatDuration(step.duration)}
+                                             {routingService.formatDistance(step.distance)} • {routingService.formatDuration(step.duration)}
                     </div>
                   </div>
                 </div>

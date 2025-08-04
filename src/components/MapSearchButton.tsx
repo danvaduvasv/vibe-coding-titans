@@ -90,6 +90,8 @@ const MapSearchButton: React.FC<MapSearchButtonProps> = ({
             </button>
           </div>
         )}
+
+
       </div>
     </div>
   );

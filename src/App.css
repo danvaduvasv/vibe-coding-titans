@@ -5,6 +5,398 @@
   padding: 0;
 }
 
+/* Ensure Leaflet path components are visible */
+.leaflet-interactive {
+  pointer-events: auto !important;
+}
+
+.leaflet-overlay-pane svg path {
+  stroke-width: 3px !important;
+  stroke-opacity: 1 !important;
+  fill-opacity: 0.5 !important;
+}
+
+.leaflet-overlay-pane svg circle {
+  stroke-width: 2px !important;
+  stroke-opacity: 1 !important;
+  fill-opacity: 0.1 !important;
+}
+
+/* Navigation Panel Styles */
+.navigation-panel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+  min-width: 280px;
+  max-width: 320px;
+}
+
+.navigation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.navigation-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.navigation-close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.navigation-close-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.navigation-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transport-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.transport-modes label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.mode-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mode-btn:hover {
+  border-color: #3b82f6;
+  background: #f8fafc;
+}
+
+.mode-btn.active {
+  border-color: #3b82f6;
+  background: #3b82f6;
+  color: white;
+}
+
+.route-toggle {
+  display: flex;
+  justify-content: center;
+}
+
+.toggle-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.toggle-btn:hover {
+  background: #2563eb;
+}
+
+.toggle-btn.active {
+  background: #dc2626;
+}
+
+.toggle-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.route-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 12px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  margin-top: 8px;
+  min-height: 24px;
+}
+
+.route-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.external-btn {
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  background: #10b981;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.external-btn:hover {
+  background: #059669;
+}
+
+.navigation-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 12px;
+}
+
+.navigation-error button {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  background: #dc2626;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* Turn-by-Turn Navigation Styles */
+.turn-by-turn-section {
+  margin-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+.turn-by-turn-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.turn-by-turn-header:hover {
+  background: #f1f5f9;
+}
+
+.next-turn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.direction-arrow {
+  font-size: 16px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.next-instruction {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  line-height: 1.4;
+}
+
+.expand-indicator {
+  font-size: 12px;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.all-steps {
+  margin-top: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 12px;
+}
+
+.step-item:last-child {
+  border-bottom: none;
+}
+
+.step-instruction {
+  flex: 1;
+  color: #374151;
+  line-height: 1.3;
+}
+
+.step-distance {
+  color: #6b7280;
+  font-weight: 500;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Distance and Route Button Row */
+.distance-route-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.distance-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #10b981;
+  margin-right: 0;
+}
+
+.distance-info strong {
+  font-size: 14px;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.distance-info .distance {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  white-space: nowrap;
+}
+
+.route-button {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.route-button:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.route-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+/* Description Text Expandable Styles */
+.description-text-expandable {
+  cursor: pointer;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #10b981;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.description-text-expandable:hover {
+  background: #f1f5f9;
+  border-left-color: #059669;
+}
+
+.description-text-expandable.expanded {
+  background: #f0fdf4;
+  border-left-color: #16a34a;
+}
+
+.description-text-content {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #374151;
+  margin-right: 8px;
+}
+
+.description-text-expandable .expand-indicator {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  color: #6b7280;
+}
+
+.description-text-expandable.expanded .expand-indicator {
+  transform: rotate(180deg);
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -27,7 +419,7 @@ body {
 /* Modern Header */
 .app-header {
   text-align: center;
-  padding: 40px 24px;
+  padding: 8px 24px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -36,7 +428,7 @@ body {
 .app-header h1 {
   color: white;
   font-size: 3.5rem;
-  margin: 0 0 16px 0;
+  margin: 0 0 8px 0;
   font-weight: 800;
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   letter-spacing: -0.02em;
@@ -58,7 +450,7 @@ body {
 .app-layout {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - 140px);
+  min-height: calc(100vh - 120px);
 }
 
 /* Modern Sidebar */
@@ -385,11 +777,13 @@ body {
   min-height: 750px;
   height: 100%;
   width: 100%;
+  max-width: 100%;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
+  box-sizing: border-box;
 }
 
 /* Ensure Leaflet map fills container */
@@ -937,7 +1331,7 @@ body {
 .food-details {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
   max-height: 60vh;
   overflow-y: auto;
   overflow-x: hidden;
@@ -965,9 +1359,9 @@ body {
 .food-category,
 .food-cuisine,
 .food-distance {
-  margin: 0;
+  margin: 0 0 2px 0;
   font-size: 0.95rem;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .food-category strong,
@@ -980,7 +1374,7 @@ body {
 .food-category {
   color: #3b82f6;
   background: #eff6ff;
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-radius: 6px;
   display: inline-block;
 }
@@ -988,7 +1382,7 @@ body {
 .food-cuisine {
   color: #059669;
   background: #ecfdf5;
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-radius: 6px;
   display: inline-block;
 }
@@ -996,7 +1390,7 @@ body {
 .food-distance {
   color: #6b7280;
   background: #f8fafc;
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-radius: 6px;
   display: inline-block;
 }
@@ -1043,7 +1437,7 @@ body {
 .accommodation-details {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
   max-height: 60vh;
   overflow-y: auto;
   overflow-x: hidden;
@@ -1071,9 +1465,9 @@ body {
 .accommodation-category,
 .accommodation-type,
 .accommodation-distance {
-  margin: 0;
+  margin: 0 0 2px 0;
   font-size: 0.95rem;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .accommodation-category strong,
@@ -1086,7 +1480,7 @@ body {
 .accommodation-category {
   color: #8b5cf6;
   background: #f3f4f6;
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-radius: 6px;
   display: inline-block;
 }
@@ -1094,7 +1488,7 @@ body {
 .accommodation-type {
   color: #059669;
   background: #ecfdf5;
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-radius: 6px;
   display: inline-block;
 }
@@ -1102,7 +1496,7 @@ body {
 .accommodation-distance {
   color: #6b7280;
   background: #f8fafc;
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-radius: 6px;
   display: inline-block;
 }
@@ -1471,6 +1865,7 @@ body {
 @media (max-width: 768px) {
   .app-layout {
     flex-direction: column;
+    min-height: calc(100vh - 120px);
   }
   
   .sidebar {
@@ -1493,6 +1888,8 @@ body {
   
   .main-content {
     padding: 16px;
+    flex: 1;
+    min-height: 400px;
   }
   
   .app-header h1 {
@@ -1507,6 +1904,12 @@ body {
   .view-toggle-button {
     padding: 10px 20px;
     font-size: 0.9rem;
+  }
+
+  .map-container {
+    min-height: 400px;
+    max-width: calc(100vw - 32px);
+    height: 100%;
   }
 }
 
@@ -1532,6 +1935,15 @@ body {
   .toggle-icon {
     font-size: 1rem;
     min-width: 20px;
+  }
+  
+  .main-content {
+    padding: 12px;
+    min-height: 350px;
+  }
+  
+  .map-container {
+    min-height: 350px;
   }
 }
 
@@ -1623,13 +2035,13 @@ body {
 
 /* Clear Button - Orange with transparent background */
 .clear-button-overlay {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border: none;
   border-radius: 50%;
   background: rgba(245, 101, 101, 0.9);
   color: white;
-  font-size: 16px;
+  font-size: 18px;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 3px 10px rgba(245, 101, 101, 0.3);
@@ -1654,13 +2066,13 @@ body {
 
 /* Bounds Toggle Button - Purple with transparent background */
 .bounds-toggle-button-overlay {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border: none;
   border-radius: 50%;
   background: rgba(139, 92, 246, 0.9);
   color: white;
-  font-size: 16px;
+  font-size: 18px;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 3px 10px rgba(139, 92, 246, 0.3);

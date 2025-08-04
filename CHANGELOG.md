@@ -5,18 +5,28 @@ All notable changes to the ChronoGuide project will be documented in this file.
 ## [Unreleased]
 
 ### Added
-- Route planning functionality with OSRM API integration
-- Click-to-expand text sections for Fun Facts and Historical Significance
-- 30% wider popup for better content display
-- Compact component spacing for efficient layout
-- Default map view changed to street view for better performance
+- **Navigation Panel**: Turn-by-turn directions with transport mode selection
+- **Route Planning**: OSRM API integration with multiple routing providers
+- **Transport Modes**: Driving, walking, and cycling route options
+- **Direction Icons**: Accurate turn-by-turn navigation arrows
+- **Route Visualization**: Polyline display on map with dashed lines for walking
+- **Compact Header**: 50% reduction in header height for better space utilization
+- **Mobile Responsiveness**: Fixed map visibility issues on mobile devices
+- **Click-to-expand text sections** for Fun Facts and Historical Significance
+- **30% wider popup** for better content display
+- **Compact component spacing** for efficient layout
+- **Default map view** changed to street view for better performance
 
 ### Changed
-- Map control icons updated for better UX:
+- **Map Control Icons** updated for better UX:
   - GPS Location: 📍 → 🎯 (arrow hitting bullseye)
   - Hide Radius: 👁️ → 🙈 (crossed eye)
-- Removed unused code and comments for cleaner codebase
-- Optimized bundle size by removing unnecessary comments
+- **Header Height**: Reduced from 60px to 30px (50% reduction)
+- **Mobile Layout**: Fixed responsive design for proper map display
+- **Route Panel**: Centralized navigation controls in dedicated panel
+- **Transport Mode Selection**: Immediate route recalculation on mode change
+- **Removed unused code** and comments for cleaner codebase
+- **Optimized bundle size** by removing unnecessary comments
 
 ## [v1.0.0] - 2024-01-XX
 
@@ -240,12 +250,49 @@ All notable changes to the ChronoGuide project will be documented in this file.
 - Implemented turn-by-turn directions
 - Added route visualization and distance/duration display
 
+**Prompt**: "cam we get the Navigation directions on top of our map, instead of a link to visit another site ?"
+- Moved navigation panel to overlay on map
+- Centralized route controls in dedicated panel
+- Added transport mode selection with immediate recalculation
+
+**Prompt**: "the Route/path/directions does not show on the leaflet map."
+- Fixed route visualization with proper polyline rendering
+- Added dashed lines for walking routes
+- Implemented proper map overlay for route display
+
+**Prompt**: "for some reason, in Navigation, you need to click twice on a transportation mode for it to change on the map."
+- Fixed transport mode selection to update immediately
+- Implemented direct route recalculation on mode change
+- Added proper state management for route updates
+
+**Prompt**: "the turn by turn icons are bad. ensure "turn right" is accopmapnied by an arrow pointing to right , while slightly right shows a n arrow slightly to the right. Same for left. Continue whould be an arrow facing forward (up)."
+- Improved direction arrow mapping for accurate turn indicators
+- Added specific emoji mappings for different turn types
+- Enhanced instruction parsing for precise directional icons
+
+**Prompt**: "The Get Route button braks the Distance from your location: section. Ensure the Distance ... text goes on the same line, while the button sits aligned with the e.g. "466m away" text area"
+- Fixed layout alignment for distance information and route button
+- Improved CSS flexbox layout for proper text alignment
+- Enhanced responsive design for distance display
+
 ### Map Controls
 **Prompt**: "Change teh Return to your current GPS location icon to an arrow hitting bulsseye"
 - Updated GPS location icon from 📍 to 🎯
 
 **Prompt**: "Change the Hide radius to a Crossed eye."
 - Updated hide radius icon from 👁️ to 🙈
+
+### UI/UX Improvements
+**Prompt**: "can we make the app-header section's height much smaller ? it fills up too much space"
+- Reduced header height by 50% (from 60px to 30px)
+- Optimized padding and margins for compact design
+- Improved space utilization for map content
+
+**Prompt**: "the map dissapears entirely in mobile view. ensure responsiveness works"
+- Fixed mobile responsive design for proper map visibility
+- Added proper height calculations for mobile layout
+- Implemented flex-based layout for mobile devices
+- Enhanced responsive breakpoints for different screen sizes
 
 ### Code Quality
 **Prompt**: "Clean all unused code and comments"

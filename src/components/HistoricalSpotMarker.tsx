@@ -5,13 +5,13 @@ import { calculateDistance } from '../utils/mapBounds';
 import { getLocationDetails } from '../services/openaiService';
 import OpenAI from 'openai';
 import { createElevenLabsService } from '../services/elevenLabsService';
-import RouteDisplay from './RouteDisplay';
 import type { HistoricalSpot } from '../types/HistoricalSpot';
 
 interface HistoricalSpotMarkerProps {
   spot: HistoricalSpot;
   userLatitude: number;
   userLongitude: number;
+  onDestinationSelect?: (lat: number, lng: number) => void;
 }
 
 // Create custom + icon for historical spots
@@ -57,7 +57,7 @@ const createPlusIcon = (category: string) => {
   });
 };
 
-const HistoricalSpotMarker: React.FC<HistoricalSpotMarkerProps> = ({ spot, userLatitude, userLongitude }) => {
+const HistoricalSpotMarker: React.FC<HistoricalSpotMarkerProps> = ({ spot, userLatitude, userLongitude, onDestinationSelect }) => {
   // Calculate real-time distance from user's GPS location to this historical spot
   const distanceFromUser = calculateDistance(userLatitude, userLongitude, spot.latitude, spot.longitude);
   
@@ -73,12 +73,10 @@ const HistoricalSpotMarker: React.FC<HistoricalSpotMarkerProps> = ({ spot, userL
   const [freemanFunFact, setFreemanFunFact] = useState<string | null>(null);
   const [freemanSignificance, setFreemanSignificance] = useState<string | null>(null);
   
-  // State for route display
-  const [showRoute, setShowRoute] = useState(false);
-  
   // State for expanded sections
   const [expandedFunFact, setExpandedFunFact] = useState(false);
   const [expandedSignificance, setExpandedSignificance] = useState(false);
+  const [expandedDescription, setExpandedDescription] = useState(false);
   
   const formatDistance = (distance: number): string => {
     if (distance < 1000) {
@@ -654,13 +652,35 @@ Transform this to Freeman-speak while keeping all the factual information intact
             </div>
           </div>
           
-          <div className="spot-body">
-            <p className="spot-description">{spot.description}</p>
+                      <div className="spot-body">
+              <div className="detail-item">
+                <div 
+                  className={`description-text-expandable ${expandedDescription ? 'expanded' : ''}`}
+                  onClick={() => setExpandedDescription(!expandedDescription)}
+                >
+                  <span className="description-text-content">
+                    {expandedDescription ? spot.description : (spot.description.length > 100 ? `${spot.description.substring(0, 100)}...` : spot.description)}
+                  </span>
+                  <span className="expand-indicator">
+                    {expandedDescription ? '📄' : '📖'}
+                  </span>
+                </div>
+              </div>
             
             <div className="spot-details">
               <div className="detail-item">
-                <strong>Distance from Your Location:</strong>
-                <span className="distance">{formatDistance(distanceFromUser)} away</span>
+                <div className="distance-route-row">
+                  <div className="distance-info">
+                    <span className="distance">{formatDistance(distanceFromUser)} away</span>
+                  </div>
+                  <button 
+                    className="route-button"
+                    onClick={() => onDestinationSelect?.(spot.latitude, spot.longitude)}
+                    title="Get directions to this location"
+                  >
+                    🗺️ Get Route
+                  </button>
+                </div>
               </div>
               
               <div className="detail-item">
@@ -751,30 +771,7 @@ Transform this to Freeman-speak while keeping all the factual information intact
                 </div>
               </div>
               
-              <div className="detail-item coordinates">
-                <strong>Coordinates:</strong>
-                <span>{spot.latitude.toFixed(6)}, {spot.longitude.toFixed(6)}</span>
-              </div>
-              
-              <div className="detail-item">
-                <div className="detail-header">
-                  <strong>Navigation:</strong>
-                  <button 
-                    className="route-button"
-                    onClick={() => setShowRoute(!showRoute)}
-                    title="Get directions to this location"
-                  >
-                    🗺️ {showRoute ? 'Hide Route' : 'Get Route'}
-                  </button>
-                </div>
-                {showRoute && (
-                  <RouteDisplay
-                    start={{ lat: userLatitude, lng: userLongitude }}
-                    end={{ lat: spot.latitude, lng: spot.longitude }}
-                    onClose={() => setShowRoute(false)}
-                  />
-                )}
-              </div>
+
             </div>
           </div>
         </div>

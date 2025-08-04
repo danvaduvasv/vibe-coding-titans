@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import { divIcon } from 'leaflet';
-import RouteDisplay from './RouteDisplay';
 import type { FoodBeverageSpot } from '../types/FoodBeverageSpot';
 
 interface FoodBeverageMarkerProps {
   spot: FoodBeverageSpot;
   userLatitude: number;
   userLongitude: number;
+  onDestinationSelect?: (lat: number, lng: number) => void;
 }
 
 // Custom icon for food & beverage spots
@@ -63,9 +63,9 @@ const getCategoryColor = (category: string): string => {
   return colorMap[category] || '#FFD700';
 };
 
-const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot, userLatitude, userLongitude }) => {
+const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot, onDestinationSelect }) => {
   const icon = createFoodIcon(spot.category);
-  const [showRoute, setShowRoute] = useState(false);
+  const [expandedDescription, setExpandedDescription] = useState(false);
 
   return (
     <Marker
@@ -76,6 +76,21 @@ const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot, userLatit
       <Popup>
         <div className="food-popup">
           <h3 className="food-name">{spot.name}</h3>
+          
+          <div className="detail-item">
+            <div 
+              className={`description-text-expandable ${expandedDescription ? 'expanded' : ''}`}
+              onClick={() => setExpandedDescription(!expandedDescription)}
+            >
+              <span className="description-text-content">
+                {expandedDescription ? spot.description : (spot.description.length > 100 ? `${spot.description.substring(0, 100)}...` : spot.description)}
+              </span>
+              <span className="expand-indicator">
+                {expandedDescription ? '📄' : '📖'}
+              </span>
+            </div>
+          </div>
+          
           <div className="food-details">
             <p className="food-category">
               <strong>Type:</strong> {spot.category}
@@ -85,30 +100,18 @@ const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot, userLatit
                 <strong>Cuisine:</strong> {spot.cuisine}
               </p>
             )}
-            <p className="food-distance">
-              <strong>Distance:</strong> {spot.distance.toFixed(0)}m away
-            </p>
-            <p className="food-description">
-              {spot.description}
-            </p>
-            
-            <div className="food-navigation">
+            <div className="distance-route-row">
+              <div className="distance-info">
+                <span className="distance">{spot.distance.toFixed(0)}m away</span>
+              </div>
               <button 
                 className="route-button"
-                onClick={() => setShowRoute(!showRoute)}
+                onClick={() => onDestinationSelect?.(spot.latitude, spot.longitude)}
                 title="Get directions to this location"
               >
-                🗺️ {showRoute ? 'Hide Route' : 'Get Route'}
+                🗺️ Get Route
               </button>
             </div>
-            
-            {showRoute && (
-              <RouteDisplay
-                start={{ lat: userLatitude, lng: userLongitude }}
-                end={{ lat: spot.latitude, lng: spot.longitude }}
-                onClose={() => setShowRoute(false)}
-              />
-            )}
           </div>
         </div>
       </Popup>
