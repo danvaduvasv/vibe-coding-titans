@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
-import { Icon } from 'leaflet';
+import { Icon, divIcon } from 'leaflet';
 import type { Map as LeafletMap } from 'leaflet';
 import HistoricalSpotMarker from './HistoricalSpotMarker';
 import FoodBeverageMarker from './FoodBeverageMarker';
@@ -35,6 +35,7 @@ interface SatelliteMapProps {
   showHistoricalSpots?: boolean;
   showFoodBeverageSpots?: boolean;
   showAccommodationSpots?: boolean;
+  showFavourites?: boolean;
   mapView?: 'satellite' | 'street';
   onSearch?: (centerLat: number, centerLng: number) => void;
   onClear?: () => void;
@@ -47,6 +48,12 @@ interface SatelliteMapProps {
   onHideRoute?: () => void;
   onRouteCalculated?: (route: Route) => void;
   onDestinationSelect?: (lat: number, lng: number) => void;
+  // Favourites functionality
+  isFavourite?: (id: string) => boolean;
+  onToggleFavourite?: (item: any) => void;
+  // Home functionality
+  onSetHome?: () => void;
+  homeLocation?: { latitude: number; longitude: number } | null;
 }
 
 const SatelliteMap: React.FC<SatelliteMapProps> = ({ 
@@ -63,6 +70,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
   showHistoricalSpots = true,
   showFoodBeverageSpots = true,
   showAccommodationSpots = true,
+  showFavourites = false,
   mapView = 'street',
   onSearch,
   onClear,
@@ -72,7 +80,11 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
   spotsCount = 0,
   currentRoute = null,
   showRoute = false,
-  onDestinationSelect
+  onDestinationSelect,
+  isFavourite = () => false,
+  onToggleFavourite,
+  onSetHome,
+  homeLocation = null
 }) => {
   const [map, setMap] = useState<LeafletMap | null>(null);
 
@@ -109,23 +121,93 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           />
         )}
 
+        {/* User Location Marker */}
         <Marker position={[latitude, longitude]}>
           <Popup>
-            <div>
-              <strong>Your Location</strong>
-              <br />
-              Latitude: {latitude.toFixed(6)}
-              <br />
-              Longitude: {longitude.toFixed(6)}
-              {accuracy && (
-                <>
-                  <br />
-                  Accuracy: ±{accuracy.toFixed(0)} meters
-                </>
+            <div className="user-location-popup">
+              <div className="location-info">
+                <strong>Your Location</strong>
+                <br />
+                Latitude: {latitude.toFixed(6)}
+                <br />
+                Longitude: {longitude.toFixed(6)}
+                {accuracy && (
+                  <>
+                    <br />
+                    Accuracy: ±{accuracy.toFixed(0)} meters
+                  </>
+                )}
+              </div>
+              {onSetHome && (
+                <button 
+                  className="set-home-button"
+                  onClick={onSetHome}
+                  title="Set current location as home"
+                >
+                  🏠 Set as Home
+                </button>
               )}
             </div>
           </Popup>
         </Marker>
+
+        {/* Home Location Marker */}
+        {homeLocation && (
+          homeLocation.latitude !== latitude || homeLocation.longitude !== longitude ? (
+            <Marker 
+              position={[homeLocation.latitude, homeLocation.longitude]}
+              icon={divIcon({
+                html: `
+                  <div style="
+                    width: 24px;
+                    height: 24px;
+                    background-color: #fbbf24;
+                    border: 2px solid white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                    cursor: pointer;
+                    transition: transform 0.2s ease;
+                  " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                    <span style="
+                      color: white;
+                      font-size: 12px;
+                      font-weight: bold;
+                      line-height: 1;
+                    ">🏠</span>
+                  </div>
+                `,
+                className: 'home-marker',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
+                popupAnchor: [0, -12]
+              })}
+            >
+              <Popup>
+                <div className="home-popup">
+                  <div className="home-info">
+                    <strong>🏠 Home</strong>
+                    <br />
+                    Latitude: {homeLocation.latitude.toFixed(6)}
+                    <br />
+                    Longitude: {homeLocation.longitude.toFixed(6)}
+                  </div>
+                  {onDestinationSelect && (
+                    <button 
+                      className="home-route-button"
+                      onClick={() => onDestinationSelect(homeLocation.latitude, homeLocation.longitude)}
+                      title="Get directions to home"
+                    >
+                      🗺️ Get Route
+                    </button>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          ) : null
+        )}
 
               {showBounds && searchCenter && (
                 <BoundsOverlay
@@ -143,6 +225,9 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
             userLatitude={latitude}
             userLongitude={longitude}
             onDestinationSelect={onDestinationSelect}
+            isFavourite={isFavourite(spot.id)}
+            onToggleFavourite={onToggleFavourite}
+            showFavouritesFilter={showFavourites}
           />
         ))}
 
@@ -153,6 +238,9 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
             userLatitude={latitude}
             userLongitude={longitude}
             onDestinationSelect={onDestinationSelect}
+            isFavourite={isFavourite(spot.id)}
+            onToggleFavourite={onToggleFavourite}
+            showFavouritesFilter={showFavourites}
           />
         ))}
 
@@ -163,6 +251,49 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
             userLatitude={latitude}
             userLongitude={longitude}
             onDestinationSelect={onDestinationSelect}
+            isFavourite={isFavourite(spot.id)}
+            onToggleFavourite={onToggleFavourite}
+            showFavouritesFilter={showFavourites}
+          />
+        ))}
+
+        {/* Show favourites regardless of category filters when favourites filter is enabled */}
+        {showFavourites && historicalSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
+          <HistoricalSpotMarker 
+            key={`fav-${spot.id}`} 
+            spot={spot} 
+            userLatitude={latitude}
+            userLongitude={longitude}
+            onDestinationSelect={onDestinationSelect}
+            isFavourite={true}
+            onToggleFavourite={onToggleFavourite}
+            showFavouritesFilter={true}
+          />
+        ))}
+
+        {showFavourites && foodBeverageSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
+          <FoodBeverageMarker 
+            key={`fav-${spot.id}`} 
+            spot={spot}
+            userLatitude={latitude}
+            userLongitude={longitude}
+            onDestinationSelect={onDestinationSelect}
+            isFavourite={true}
+            onToggleFavourite={onToggleFavourite}
+            showFavouritesFilter={true}
+          />
+        ))}
+
+        {showFavourites && accommodationSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
+          <AccommodationMarker 
+            key={`fav-${spot.id}`} 
+            spot={spot}
+            userLatitude={latitude}
+            userLongitude={longitude}
+            onDestinationSelect={onDestinationSelect}
+            isFavourite={true}
+            onToggleFavourite={onToggleFavourite}
+            showFavouritesFilter={true}
           />
         ))}
 

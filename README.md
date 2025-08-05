@@ -15,6 +15,8 @@ A modern React application that helps you discover historical places, food & bev
 - **Visual Search Boundaries**: Optional overlay showing search radius as a circle
 - **Smart Categorization**: Spots categorized by type with color-coded markers
 - **Distance Calculation**: Real-time distance from your location to each spot
+- **⭐ Favourites System**: Save and manage your favorite locations with local storage
+- **🏠 Home Location**: Set and navigate to your home location with persistent storage
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Modern Aesthetics**: Glass morphism design with gradients and smooth animations
 - **Compact Header**: Optimized header height for better space utilization
@@ -201,13 +203,17 @@ When you first visit the app, your browser will ask for location permissions. Ma
 
 - **🖱️ Scroll** to zoom in/out
 - **🖐️ Click and drag** to position the map center at your area of interest
-- **🎯 Click your location marker** to see detailed location information
+- **🎯 Click your location marker** to see detailed location information and set as home
 - **🔍 Click "Find Historical Spots"** button to search within your selected radius centered on the map
 - **🙈 Click "Show/Hide Radius"** to toggle the visual search area circle
 - **➕ Click historical spot markers** (+ signs) to see historical details, significance, and real-time GPS distance
+- **⭐ Click star buttons** in popups to add/remove locations from favourites
+- **🏠 Home marker** appears on map when home location is set (different from current location)
 - **🎨 Color-coded markers** by category (Architecture, Military, Religious, Cultural, etc.)
 - **✕ Click "Clear"** button to remove historical spots and bounds from the map
 - **🚗 Click "Get Route"** in popups to calculate navigation directions
+- **🗺️ Click "Home"** in Map Controls to navigate to your saved home location
+- **⭐ Click "Favourites"** filter to show only your saved locations
 - **Zoom controls** available in the top-left corner of the map
 
 ## 🛠️ Built With
@@ -281,7 +287,9 @@ src/
 │   └── LoadingSpinner.tsx         # Loading state component
 ├── hooks/
 │   ├── useGeolocation.ts          # Custom geolocation hook
-│   └── useHistoricalSpots.ts      # Custom hook for historical spots
+│   ├── useHistoricalSpots.ts      # Custom hook for historical spots
+│   ├── useFavourites.ts           # Favourites management hook
+│   └── useHome.ts                 # Home location management hook
 ├── services/
 │   ├── openaiService.ts           # OpenAI API integration
 │   ├── geoapifyService.ts         # Geoapify Places API integration
@@ -323,6 +331,26 @@ Real-world data precision search system that:
 - Displays color-coded + markers for easy identification
 - Shows visual search boundaries with optional overlay rectangle
 - Only searches when you manually trigger it, giving you full control
+
+### ⭐ Favourites System
+Personal location management with local storage:
+- **Star buttons** in all popup headers to toggle favourite status
+- **Visual feedback** with filled (⭐) and empty (☆) stars
+- **Map icon changes** - favourited items show star-shaped icons when filter is enabled
+- **Favourites filter** in sidebar to show only saved locations
+- **Local storage persistence** - favourites saved across browser sessions
+- **Smart filtering** - favourites appear regardless of category filters when enabled
+- **Consistent behavior** - popup stars always show actual favourite status
+
+### 🏠 Home Location System
+Personal home location management:
+- **"Set as Home" button** in user location popup
+- **Home marker** on map (golden icon) when home is set
+- **"Get Route" button** in home popup for navigation
+- **"Home" button** in Map Controls for quick navigation
+- **Local storage persistence** - home location saved across sessions
+- **Smart visibility** - home marker only shows when different from current location
+- **Golden theme** - consistent styling with home icon and buttons
 
 ### Responsive Design
 - Mobile-first approach

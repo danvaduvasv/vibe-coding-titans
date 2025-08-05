@@ -4,6 +4,8 @@ import { useGeolocation } from './hooks/useGeolocation';
 import { useHistoricalSpots } from './hooks/useHistoricalSpots';
 import { useFoodBeverageSpots } from './hooks/useFoodBeverageSpots';
 import { useAccommodationSpots } from './hooks/useAccommodationSpots';
+import { useFavourites } from './hooks/useFavourites';
+import { useHome } from './hooks/useHome';
 import SatelliteMap from './components/SatelliteMap';
 import LoadingSpinner from './components/LoadingSpinner';
 import type { Route } from './services/routingService';
@@ -43,11 +45,38 @@ function App() {
   const [showHistoricalSpots, setShowHistoricalSpots] = useState(true);
   const [showFoodBeverageSpots, setShowFoodBeverageSpots] = useState(true);
   const [showAccommodationSpots, setShowAccommodationSpots] = useState(true);
+  const [showFavourites, setShowFavourites] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mapView, setMapView] = useState<'satellite' | 'street'>('street');
   const [currentRoute, setCurrentRoute] = useState<Route | null>(null);
   const [showRoute, setShowRoute] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<{ lat: number; lng: number } | null>(null);
+
+  // Favourites functionality
+  const { 
+    favourites, 
+    toggleFavourite, 
+    isFavourite
+  } = useFavourites();
+
+  // Home functionality
+  const { 
+    homeLocation, 
+    setHome, 
+    hasHome 
+  } = useHome();
+
+  const handleSetHome = () => {
+    if (latitude !== null && longitude !== null) {
+      setHome(latitude, longitude);
+    }
+  };
+
+  const handleGoHome = () => {
+    if (homeLocation && map) {
+      map.setView([homeLocation.latitude, homeLocation.longitude], 16);
+    }
+  };
 
   const handleMapReady = (mapInstance: LeafletMap) => {
     setMap(mapInstance);
@@ -79,7 +108,7 @@ function App() {
     }
   };
 
-  const toggleCategory = (category: 'historical' | 'food' | 'accommodation') => {
+  const toggleCategory = (category: 'historical' | 'food' | 'accommodation' | 'favourites') => {
     switch (category) {
       case 'historical':
         setShowHistoricalSpots(!showHistoricalSpots);
@@ -89,6 +118,9 @@ function App() {
         break;
       case 'accommodation':
         setShowAccommodationSpots(!showAccommodationSpots);
+        break;
+      case 'favourites':
+        setShowFavourites(!showFavourites);
         break;
     }
   };
@@ -174,6 +206,17 @@ function App() {
                   <span className="toggle-count">{accommodationSpots.length}</span>
                 </button>
               </div>
+
+              <div className="category-toggle">
+                <button 
+                  className={`toggle-button ${showFavourites ? 'active' : ''}`}
+                  onClick={() => toggleCategory('favourites')}
+                >
+                  <span className="toggle-icon">⭐</span>
+                  <span className="toggle-text">Favourites</span>
+                  <span className="toggle-count">{favourites.length}</span>
+                </button>
+              </div>
             </div>
 
             {/* Search Radius */}
@@ -217,6 +260,16 @@ function App() {
               >
                 <span className="control-icon">📍</span>
                 <span className="control-text">Recenter Map</span>
+              </button>
+
+              <button 
+                className={`control-button ${hasHome() ? 'active' : ''}`}
+                onClick={handleGoHome}
+                disabled={!hasHome()}
+                title={hasHome() ? 'Go to home location' : 'Set a home location first'}
+              >
+                <span className="control-icon">🏠</span>
+                <span className="control-text">Home</span>
               </button>
             </div>
 
@@ -272,6 +325,7 @@ function App() {
                   showHistoricalSpots={showHistoricalSpots}
                   showFoodBeverageSpots={showFoodBeverageSpots}
                   showAccommodationSpots={showAccommodationSpots}
+                  showFavourites={showFavourites}
                   mapView={mapView}
                   onSearch={handleSearch}
                   onClear={handleClearSpots}
@@ -283,6 +337,10 @@ function App() {
                   showRoute={showRoute}
                   onRouteCalculated={handleRouteDisplay}
                   onDestinationSelect={handleDestinationSelect}
+                  isFavourite={isFavourite}
+                  onToggleFavourite={toggleFavourite}
+                  onSetHome={handleSetHome}
+                  homeLocation={homeLocation}
                 />
                 
                 {/* Navigation Panel */}

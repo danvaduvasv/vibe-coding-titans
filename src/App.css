@@ -580,7 +580,7 @@ body {
 
 /* Category Toggle Buttons */
 .category-toggle {
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .toggle-button {
@@ -598,6 +598,7 @@ body {
   font-size: 0.95rem;
   font-weight: 500;
   color: #374151;
+  margin-bottom: 6px;
 }
 
 .toggle-button:hover {
@@ -655,7 +656,7 @@ body {
   font-size: 0.95rem;
   font-weight: 500;
   color: #374151;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .control-button:hover {
@@ -853,6 +854,112 @@ body {
   max-height: 70vh;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+/* Favourite Star Button */
+.favourite-star {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  color: #d1d5db;
+  margin-right: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.favourite-star:hover {
+  transform: scale(1.1);
+  color: #fbbf24;
+}
+
+.favourite-star.favourite {
+  color: #fbbf24;
+}
+
+.favourite-star.favourite:hover {
+  color: #f59e0b;
+}
+
+/* Spot Name Row */
+.spot-name-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+/* User Location Popup */
+.user-location-popup {
+  min-width: 200px;
+}
+
+.location-info {
+  margin-bottom: 12px;
+}
+
+.set-home-button {
+  width: 100%;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.set-home-button:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+}
+
+.set-home-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+/* Home Popup */
+.home-popup {
+  min-width: 200px;
+}
+
+.home-info {
+  margin-bottom: 12px;
+}
+
+.home-route-button {
+  width: 100%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
+}
+
+.home-route-button:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(251, 191, 36, 0.4);
+}
+
+.home-route-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
 }
 
 .historical-spot-content::-webkit-scrollbar {

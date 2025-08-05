@@ -8,38 +8,42 @@ interface FoodBeverageMarkerProps {
   userLatitude: number;
   userLongitude: number;
   onDestinationSelect?: (lat: number, lng: number) => void;
+  isFavourite?: boolean;
+  onToggleFavourite?: (spot: FoodBeverageSpot) => void;
+  showFavouritesFilter?: boolean;
 }
 
 // Custom icon for food & beverage spots
-const createFoodIcon = (category: string) => {
+const createFoodIcon = (category: string, isFavourite: boolean = false) => {
   const iconColor = getCategoryColor(category);
   
   return divIcon({
     html: `
       <div style="
-        width: 30px;
-        height: 30px;
-        background-color: ${iconColor};
+        width: ${isFavourite ? '40px' : '30px'};
+        height: ${isFavourite ? '40px' : '30px'};
+        background-color: ${isFavourite ? '#fbbf24' : iconColor};
         border: 3px solid white;
-        border-radius: 50%;
+        border-radius: ${isFavourite ? '0%' : '50%'};
         display: flex;
         align-items: center;
         justify-content: center;
         box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         cursor: pointer;
         transition: transform 0.2s ease;
+        clip-path: ${isFavourite ? 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' : 'none'};
       " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
         <span style="
           color: white;
-          font-size: 16px;
+          font-size: ${isFavourite ? '21px' : '16px'};
           font-weight: bold;
           line-height: 1;
         ">🍽️</span>
       </div>
     `,
     className: 'food-beverage-spot-marker',
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
+    iconSize: isFavourite ? [40, 40] : [30, 30],
+    iconAnchor: isFavourite ? [20, 20] : [15, 15],
     popupAnchor: [0, -15]
   });
 };
@@ -63,8 +67,14 @@ const getCategoryColor = (category: string): string => {
   return colorMap[category] || '#FFD700';
 };
 
-const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot, onDestinationSelect }) => {
-  const icon = createFoodIcon(spot.category);
+const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ 
+  spot, 
+  onDestinationSelect,
+  isFavourite = false,
+  onToggleFavourite,
+  showFavouritesFilter = false
+}) => {
+  const icon = createFoodIcon(spot.category, showFavouritesFilter && isFavourite);
   const [expandedDescription, setExpandedDescription] = useState(false);
 
   return (
@@ -75,7 +85,19 @@ const FoodBeverageMarker: React.FC<FoodBeverageMarkerProps> = ({ spot, onDestina
     >
       <Popup>
         <div className="food-popup">
-          <h3 className="food-name">{spot.name}</h3>
+          <div className="spot-name-row">
+            <button 
+              className={`favourite-star ${isFavourite ? 'favourite' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavourite?.(spot);
+              }}
+              title={isFavourite ? 'Remove from favourites' : 'Add to favourites'}
+            >
+              {isFavourite ? '⭐' : '☆'}
+            </button>
+            <h3 className="food-name">{spot.name}</h3>
+          </div>
           
           <div className="detail-item">
             <div 
