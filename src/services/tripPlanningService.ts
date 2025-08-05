@@ -51,7 +51,7 @@ export const generateTripPlan = async (request: TripPlanningRequest): Promise<Tr
     ];
 
     // Limit points to reduce API costs - take top 10 most relevant points
-    const limitedPoints = allPoints.slice(0, 10);
+    const limitedPoints = allPoints;
     
     const routingData = await calculateWalkingDistances(limitedPoints, request.userLocation);
     
@@ -110,18 +110,17 @@ export const generateTripPlan = async (request: TripPlanningRequest): Promise<Tr
       lng: p.longitude
     }));
 
-    const systemPrompt = `Create 1 personalized trip and one additional trip based on user request and available points.
+    const systemPrompt = `Create 1 personalized trip and 1 additional trip based on user request and available points.
 
 RULES:
 - Respond with valid JSON only
-- Include 4-8 points max
+- Include 8 points max
 - Mix historical + food/coffee
 - Visit duration: 15-45min attractions, 30-60min food
-- Default 4 hours if no time specified
+- Pay extra attention to the user input requests, especially the duration and interests
 - Use provided walking distances
-- Only use points within search radius (${request.searchRadius}m from user location)
 
-POINTS (all within ${request.searchRadius}m radius):
+POINTS:
 H: ${JSON.stringify(compactHistorical)}
 F: ${JSON.stringify(compactFood)}
 A: ${JSON.stringify(compactAccommodation)}
@@ -132,7 +131,7 @@ DIST: ${distanceInfo}
 FORMAT:
 {"trips":[{"id":"t1","name":"Trip Name","description":"Brief description","points":[{"id":"p1","name":"Point Name","category":"historical","latitude":40.7,"longitude":-74.0,"visitDuration":45,"description":"Brief description"}],"totalDuration":180,"totalDistance":2500,"estimatedCost":25,"difficulty":"easy"}]}`;
 
-    const userPrompt = `Plan trip: "${request.userInput}". Include 4-8 points, mix historical + food, use walking distances.`;
+    const userPrompt = `You are a trip planner. Plan trip based on user request: "${request.userInput}".`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo", // Cheaper model

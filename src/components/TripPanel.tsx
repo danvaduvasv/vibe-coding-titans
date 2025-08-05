@@ -112,7 +112,12 @@ const TripPanel: React.FC<TripPanelProps> = ({
                     <div className="point-name">{point.name}</div>
                     <div className="point-details">
                       <span className="point-category">{point.category}</span>
-                      <span className="point-duration">{formatDuration(point.visitDuration)}</span>
+                      <span className="point-duration">
+                        {currentTrip?.route.routeSegments?.[index] 
+                          ? `${formatDistance(Math.round(currentTrip.route.routeSegments[index].distance))} • ${formatDuration(Math.round(currentTrip.route.routeSegments[index].duration))}`
+                          : formatDuration(point.visitDuration)
+                        }
+                      </span>
                     </div>
                   </div>
                   <div className="expand-icon">
@@ -146,7 +151,7 @@ const TripPanel: React.FC<TripPanelProps> = ({
                                 <div className="step-info">
                                   <div className="step-instruction">{step.instruction}</div>
                                   <div className="step-details">
-                                    {formatDistance(Math.round(step.distance))} • {formatDuration(step.duration)}
+                                    {formatDistance(Math.round(step.distance))}
                                   </div>
                                 </div>
                               </div>
