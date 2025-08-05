@@ -42,13 +42,61 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
+// Clean and validate JSON response from OpenAI
+const cleanAndValidateJSON = (content: string): string => {
+  try {
+    // First, try to parse as-is
+    JSON.parse(content);
+    return content;
+  } catch (error) {
+    console.log("Initial JSON parsing failed, attempting to clean...");
+    
+    let cleaned = content;
+    
+    // Remove any markdown code blocks
+    cleaned = cleaned.replace(/```json\s*/g, '').replace(/```\s*$/g, '');
+    
+    // Fix common JSON issues:
+    // 1. Add quotes around unquoted field names
+    cleaned = cleaned.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":');
+    
+    // 2. Add quotes around unquoted string values
+    cleaned = cleaned.replace(/:\s*([a-zA-Z][a-zA-Z0-9\s\-_]+)([,}])/g, ':"$1"$2');
+    
+    // 3. Fix trailing commas
+    cleaned = cleaned.replace(/,(\s*[}\]])/g, '$1');
+    
+    // 4. Fix missing quotes around string values that contain special characters
+    cleaned = cleaned.replace(/:\s*([^"][^,}\]]*[^"\s,}\]])/g, ':"$1"');
+    
+    // 5. Fix boolean and number values that might have been quoted
+    cleaned = cleaned.replace(/:\s*"(\d+(?:\.\d+)?)"([,}])/g, ':$1$2');
+    cleaned = cleaned.replace(/:\s*"(true|false)"([,}])/g, ':$1$2');
+    
+    // 6. Fix null values
+    cleaned = cleaned.replace(/:\s*"null"([,}])/g, ':null$1');
+    
+    console.log("Cleaned JSON:", cleaned);
+    
+    // Validate the cleaned JSON
+    try {
+      JSON.parse(cleaned);
+      return cleaned;
+    } catch (secondError) {
+      console.error("Failed to clean JSON:", secondError);
+      console.error("Original content:", content);
+      console.error("Cleaned content:", cleaned);
+      throw new Error(`Failed to parse JSON response from OpenAI: ${secondError}`);
+    }
+  }
+};
+
 export const generateTripPlan = async (request: TripPlanningRequest): Promise<TripRoute[]> => {
   try {
     // Optimize: Only calculate distances for points that are likely to be used
     const allPoints = [
       ...request.availablePoints.historical,
-      ...request.availablePoints.food,
-      ...request.availablePoints.accommodation
+      ...request.availablePoints.food
     ];
 
     // Limit points to reduce API costs - take top 10 most relevant points
@@ -57,7 +105,7 @@ export const generateTripPlan = async (request: TripPlanningRequest): Promise<Tr
     const routingData = await calculateWalkingDistances(limitedPoints, request.userLocation);
     
     // Create a compact distance lookup for AI
-    const distanceInfo = routingData.distances.slice(0, 15).map(d => 
+    const distanceInfo = routingData.distances.slice(0, 50).map(d => 
       `${d.from} to ${d.to}: ${Math.round(d.distance)}m (${d.duration}min)`
     ).join(', ');
 
@@ -70,21 +118,21 @@ export const generateTripPlan = async (request: TripPlanningRequest): Promise<Tr
       request.userInput, 
       request.userLocation, 
       request.searchRadius, 
-      3
+      15  // Increased from 3 to 15
     );
     const filteredFood = filterValidAndRelevantPoints(
       request.availablePoints.food, 
       request.userInput, 
       request.userLocation, 
       request.searchRadius, 
-      3
+      10  // Increased from 3 to 10
     );
     const filteredAccommodation = filterValidAndRelevantPoints(
       request.availablePoints.accommodation, 
       request.userInput, 
       request.userLocation, 
       request.searchRadius, 
-      2
+      8   // Increased from 2 to 8
     );
 
     const compactHistorical = filteredHistorical.map((p: any) => ({
@@ -111,13 +159,25 @@ export const generateTripPlan = async (request: TripPlanningRequest): Promise<Tr
       lng: p.longitude
     }));
 
+    console.log("Historical points:", compactHistorical);
+    console.log("Food points:", compactFood);
+    console.log("Accommodation points:", compactAccommodation);
+    console.log("Total available historical points:", request.availablePoints.historical.length);
+    console.log("Total available food points:", request.availablePoints.food.length);
+    console.log("Total available accommodation points:", request.availablePoints.accommodation.length);
+    console.log("Search radius:", request.searchRadius);
+    console.log("User input:", request.userInput);
+
+    console.log("LOC:", request.userLocation);
+    console.log("DIST:", distanceInfo);
+
     const systemPrompt = `Create 1 personalized trip and 1 additional trip based on user request and available points.
 
 RULES:
-- Respond with valid JSON only
+- Respond with valid JSON only, double check the JSON is valid, especially in double quoting the strings and fields
 - Include 8 points max
 - Mix historical + food/coffee
-- Visit duration: 15-45min attractions, 30-60min food
+- Visit duration: 15-30min attractions, 30-45min food
 - Pay extra attention to the user input requests, especially the duration and interests
 - Use provided walking distances
 - Never include 2 food places in consecutive order (unless the user explicitly asks for it, or if the second one is a coffee place) 
@@ -125,7 +185,6 @@ RULES:
 POINTS:
 H: ${JSON.stringify(compactHistorical)}
 F: ${JSON.stringify(compactFood)}
-A: ${JSON.stringify(compactAccommodation)}
 
 LOC: ${request.userLocation.latitude}, ${request.userLocation.longitude}
 DIST: ${distanceInfo}
@@ -133,7 +192,7 @@ DIST: ${distanceInfo}
 FORMAT:
 {"trips":[{"id":"t1","name":"Trip Name","description":"Brief description","points":[{"id":"p1","name":"Point Name","category":"historical","latitude":40.7,"longitude":-74.0,"visitDuration":45,"description":"Brief description"}],"totalDuration":180,"totalDistance":2500,"estimatedCost":25,"difficulty":"easy"}]}`;
 
-    const userPrompt = `You are a trip planner. Plan trip based on user request: "${request.userInput}".`;
+    const userPrompt = `You are a trip planner. Plan two trips based on user request: "${request.userInput}". Make sure the JSON response is valid and double check the JSON is valid, especially in double quoting the strings and fields`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo", // Cheaper model
@@ -150,9 +209,14 @@ FORMAT:
     if (!content) {
       throw new Error('No response from OpenAI');
     }
-
+    console.log("Response from OpenAI:", content);
+    console.log("Response from OpenAI:", response);
+    
+    // Clean and validate the JSON response
+    const cleanedContent = cleanAndValidateJSON(content);
+    
     // Parse the JSON response
-    const parsedResponse = JSON.parse(content);
+    const parsedResponse = JSON.parse(cleanedContent);
     const trips = parsedResponse.trips || [];
 
     // Add real routing data to each trip
@@ -198,12 +262,80 @@ const filterValidAndRelevantPoints = (
   userInput: string, 
   userLocation: { latitude: number; longitude: number },
   searchRadius: number,
-  maxPoints: number = 5
+  maxPoints: number = 10
 ) => {
   const input = userInput.toLowerCase();
   const keywords = input.split(' ').filter(word => word.length > 2);
   
-  return points
+  console.log(`Filtering ${points.length} points with maxPoints=${maxPoints}, searchRadius=${searchRadius}`);
+  
+  // Define valid tourism categories that can be visited
+  const validTourismCategories = [
+    // Historical and Cultural Sites
+    'historical', 'cultural', 'heritage', 'monument', 'memorial', 'museum', 'gallery',
+    'archaeological', 'ruins', 'castle', 'fortress', 'palace', 'manor', 'estate',
+    
+    // Religious Sites
+    'church', 'cathedral', 'basilica', 'temple', 'mosque', 'synagogue', 'chapel',
+    'shrine', 'sanctuary', 'monastery', 'abbey', 'convent', 'religious',
+    
+    // Buildings and Architecture
+    'building', 'architecture', 'landmark', 'tower', 'bridge', 'gate', 'arch',
+    'skyscraper', 'government', 'city hall', 'library', 'theater', 'opera house',
+    'concert hall', 'stadium', 'arena', 'market', 'bazaar', 'shopping center',
+    
+    // Attractions and Entertainment
+    'attraction', 'entertainment', 'amusement', 'park', 'garden', 'botanical',
+    'zoo', 'aquarium', 'planetarium', 'observatory', 'science center',
+    'theme park', 'water park', 'adventure park', 'nature reserve',
+    
+    // Tourism and Leisure
+    'tourism', 'tourist', 'visitor', 'sightseeing', 'viewpoint', 'lookout',
+    'beach', 'coast', 'harbor', 'marina', 'port', 'pier', 'boardwalk',
+    'mountain', 'hill', 'peak', 'trail', 'hiking', 'climbing',
+    
+    // Food and Dining
+    'restaurant', 'cafe', 'bar', 'pub', 'tavern', 'bistro', 'diner',
+    'food', 'dining', 'cuisine', 'bakery', 'patisserie', 'brewery',
+    
+    // Accommodation
+    'hotel', 'resort', 'inn', 'guesthouse', 'hostel', 'lodge', 'cabin',
+    'accommodation', 'lodging', 'stay', 'overnight',
+    
+    // Transportation and Infrastructure
+    'station', 'terminal', 'airport', 'harbor', 'port', 'ferry', 'cable car',
+    'funicular', 'metro', 'subway', 'tram', 'bus station',
+    
+    // Shopping and Retail
+    'mall', 'shopping', 'market', 'bazaar', 'souvenir', 'craft', 'artisan',
+    'boutique', 'department store', 'plaza', 'square',
+    
+    // Education and Learning
+    'university', 'college', 'school', 'institute', 'academy', 'research',
+    'education', 'learning', 'cultural center', 'community center',
+    
+    // Sports and Recreation
+    'sports', 'fitness', 'gym', 'pool', 'tennis', 'golf', 'skiing',
+    'recreation', 'leisure', 'wellness', 'spa', 'hot springs',
+    
+    // Business and Professional
+    'office', 'business', 'commercial', 'corporate', 'financial', 'bank',
+    'conference', 'convention', 'exhibition', 'trade center',
+    
+    // Government and Civic
+    'government', 'civic', 'municipal', 'embassy', 'consulate', 'courthouse',
+    'police', 'fire', 'post office', 'city services',
+    
+    // Healthcare and Services
+    'hospital', 'clinic', 'medical', 'pharmacy', 'wellness', 'health',
+    'service', 'utility', 'maintenance', 'repair',
+    
+    // Industry and Manufacturing
+    'factory', 'industrial', 'manufacturing', 'warehouse', 'distribution',
+    'production', 'craft', 'artisan', 'workshop', 'studio'
+  ];
+  
+  const filteredPoints = points
     .map(point => {
       // Calculate distance from user location
       const distance = calculateDistance(
@@ -216,23 +348,39 @@ const filterValidAndRelevantPoints = (
       // Check if point is within search radius
       const isWithinRadius = distance <= searchRadius;
       
+      // Check if category is valid for tourism/visitation
+      const category = point.category?.toLowerCase() || '';
+      const isValidCategory = validTourismCategories.some(validCat => 
+        category.includes(validCat) || validCat.includes(category)
+      );
+      
       // Calculate relevance score
       const pointText = `${point.name} ${point.category} ${point.description || ''}`.toLowerCase();
       const relevanceScore = keywords.reduce((score, keyword) => {
         return score + (pointText.includes(keyword) ? 1 : 0);
       }, 0);
       
+      // Bonus score for valid tourism categories
+      const categoryBonus = isValidCategory ? 2 : 0;
+      const finalRelevanceScore = relevanceScore + categoryBonus;
+      
       return { 
         ...point, 
-        relevanceScore, 
+        relevanceScore: finalRelevanceScore, 
         distance,
-        isWithinRadius 
+        isWithinRadius,
+        isValidCategory
       };
     })
-    .filter(point => point.isWithinRadius) // Only include points within radius
+    .filter(point => point.isWithinRadius && point.isValidCategory) // Only include valid points within radius
     .sort((a, b) => b.relevanceScore - a.relevanceScore) // Sort by relevance
     .slice(0, maxPoints)
-    .map(({ relevanceScore, distance, isWithinRadius, ...point }) => point); // Remove helper fields
+    .map(({ relevanceScore, distance, isWithinRadius, isValidCategory, ...point }) => point); // Remove helper fields
+    
+  console.log(`Filtered to ${filteredPoints.length} points (was ${points.length})`);
+  console.log(`Sample categories from original points:`, points.slice(0, 5).map(p => p.category));
+  
+  return filteredPoints;
 };
 
 const extractDuration = (input: string): number => {
