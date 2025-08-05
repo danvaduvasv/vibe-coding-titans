@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
 import { Icon, divIcon } from 'leaflet';
 import type { Map as LeafletMap } from 'leaflet';
 import HistoricalSpotMarker from './HistoricalSpotMarker';
@@ -8,6 +8,9 @@ import AccommodationMarker from './AccommodationMarker';
 import BoundsOverlay from './BoundsOverlay';
 import MapInstanceCapture from './MapInstanceCapture';
 import MapSearchButton from './MapSearchButton';
+import MapClickPopup from './MapClickPopup';
+import StartingPointMarker from './StartingPointMarker';
+import HomeLocationMarker from './HomeLocationMarker';
 import type { HistoricalSpot } from '../types/HistoricalSpot';
 import type { FoodBeverageSpot } from '../types/FoodBeverageSpot';
 import type { AccommodationSpot } from '../types/AccommodationSpot';
@@ -54,11 +57,28 @@ interface SatelliteMapProps {
   onToggleFavourite?: (item: any) => void;
   // Home functionality
   onSetHome?: () => void;
+  onSetHomeFromCoords?: (lat: number, lng: number) => void;
   homeLocation?: { latitude: number; longitude: number } | null;
   // Trip functionality
   currentTrip?: CurrentTrip | null;
   isTripMode?: boolean;
+  // Starting point functionality
+  startingPoint?: { latitude: number; longitude: number } | null;
+  onSetStartingPoint?: (latitude: number, longitude: number) => void;
+  onRemoveStartingPoint?: () => void;
 }
+
+// Map click handler component
+const MapClickHandler: React.FC<{
+  onMapClick: (lat: number, lng: number) => void;
+}> = ({ onMapClick }) => {
+  useMapEvents({
+    click: (e) => {
+      onMapClick(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
+};
 
 const SatelliteMap: React.FC<SatelliteMapProps> = ({ 
   latitude, 
@@ -88,18 +108,59 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
   isFavourite = () => false,
   onToggleFavourite,
   onSetHome,
+  onSetHomeFromCoords,
   homeLocation = null,
   currentTrip = null,
-  isTripMode = false
+  isTripMode = false,
+  startingPoint = null,
+  onSetStartingPoint,
+  onRemoveStartingPoint
 }) => {
   const [map, setMap] = useState<LeafletMap | null>(null);
-
-
+  const [clickedLocation, setClickedLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [showClickPopup, setShowClickPopup] = useState(false);
 
   const handleMapReady = (mapInstance: LeafletMap) => {
     setMap(mapInstance);
     if (onMapReady) {
       onMapReady(mapInstance);
+    }
+  };
+
+  const handleMapClick = (lat: number, lng: number) => {
+    // If there's already a starting point, don't show the popup
+    if (startingPoint) {
+      return;
+    }
+    setClickedLocation({ lat, lng });
+    setShowClickPopup(true);
+  };
+
+  const handleSetStartingPoint = () => {
+    if (clickedLocation && onSetStartingPoint) {
+      onSetStartingPoint(clickedLocation.lat, clickedLocation.lng);
+      setShowClickPopup(false);
+      setClickedLocation(null);
+    }
+  };
+
+  const handleSetHomeFromClick = () => {
+    if (clickedLocation && onSetHomeFromCoords) {
+      onSetHomeFromCoords(clickedLocation.lat, clickedLocation.lng);
+      setShowClickPopup(false);
+      setClickedLocation(null);
+    }
+  };
+
+  const handleSetHomeAsStartingPoint = () => {
+    if (homeLocation && onSetStartingPoint) {
+      onSetStartingPoint(homeLocation.latitude, homeLocation.longitude);
+    }
+  };
+
+  const handleRemoveStartingPoint = () => {
+    if (onRemoveStartingPoint) {
+      onRemoveStartingPoint();
     }
   };
 
@@ -112,6 +173,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
         scrollWheelZoom={true}
       >
         <MapInstanceCapture onMapReady={handleMapReady} />
+        <MapClickHandler onMapClick={handleMapClick} />
 
         {mapView === 'satellite' ? (
           <TileLayer
@@ -160,252 +222,176 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
         {/* Home Location Marker */}
         {homeLocation && (
           homeLocation.latitude !== latitude || homeLocation.longitude !== longitude ? (
-            <Marker 
-              position={[homeLocation.latitude, homeLocation.longitude]}
-              icon={divIcon({
-                html: `
-                  <div style="
-                    width: 24px;
-                    height: 24px;
-                    background-color: #fbbf24;
-                    border: 2px solid white;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-                    cursor: pointer;
-                    transition: transform 0.2s ease;
-                  " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-                    <span style="
-                      color: white;
-                      font-size: 12px;
-                      font-weight: bold;
-                      line-height: 1;
-                    ">🏠</span>
-                  </div>
-                `,
-                className: 'home-marker',
-                iconSize: [24, 24],
-                iconAnchor: [12, 12],
-                popupAnchor: [0, -12]
-              })}
-            >
-              <Popup>
-                <div className="home-popup">
-                  <div className="home-info">
-                    <strong>🏠 Home</strong>
-                    <br />
-                    Latitude: {homeLocation.latitude.toFixed(6)}
-                    <br />
-                    Longitude: {homeLocation.longitude.toFixed(6)}
-                  </div>
-                  {onDestinationSelect && (
-                    <button 
-                      className="home-route-button"
-                      onClick={() => onDestinationSelect(homeLocation.latitude, homeLocation.longitude)}
-                      title="Get directions to home"
-                    >
-                      🗺️ Get Route
-                    </button>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
+            <HomeLocationMarker
+              latitude={homeLocation.latitude}
+              longitude={homeLocation.longitude}
+              onSetAsStartingPoint={handleSetHomeAsStartingPoint}
+            />
           ) : null
         )}
 
-              {/* Hide bounds and other elements when in trip mode */}
-              {!isTripMode && showBounds && searchCenter && (
-                <BoundsOverlay
-                  centerLat={searchCenter.lat}
-                  centerLng={searchCenter.lng}
-                  radiusMeters={searchRadius}
-                  visible={true}
-                />
-              )}
-
-        {/* Hide regular spots when in trip mode */}
-        {!isTripMode && showHistoricalSpots && historicalSpots.map((spot) => (
-          <HistoricalSpotMarker 
-            key={spot.id} 
-            spot={spot} 
-            userLatitude={latitude}
-            userLongitude={longitude}
-            onDestinationSelect={onDestinationSelect}
-            isFavourite={isFavourite(spot.id)}
-            onToggleFavourite={onToggleFavourite}
-            showFavouritesFilter={showFavourites}
+        {/* Starting Point Marker */}
+        {startingPoint && (
+          <StartingPointMarker
+            latitude={startingPoint.latitude}
+            longitude={startingPoint.longitude}
+            onRemove={handleRemoveStartingPoint}
           />
-        ))}
+        )}
 
-        {!isTripMode && showFoodBeverageSpots && foodBeverageSpots.map((spot) => (
-          <FoodBeverageMarker 
-            key={spot.id} 
+        {/* Map Click Popup */}
+        {showClickPopup && clickedLocation && (
+          <MapClickPopup
+            latitude={clickedLocation.lat}
+            longitude={clickedLocation.lng}
+            onSetStartingPoint={handleSetStartingPoint}
+            onSetHome={handleSetHomeFromClick}
+          />
+        )}
+
+        {/* Historical Spots */}
+        {showHistoricalSpots && historicalSpots.map((spot) => (
+          <HistoricalSpotMarker
+            key={spot.id}
             spot={spot}
             userLatitude={latitude}
             userLongitude={longitude}
             onDestinationSelect={onDestinationSelect}
             isFavourite={isFavourite(spot.id)}
-            onToggleFavourite={onToggleFavourite}
+            onToggleFavourite={() => onToggleFavourite?.(spot)}
             showFavouritesFilter={showFavourites}
           />
         ))}
 
-        {!isTripMode && showAccommodationSpots && accommodationSpots.map((spot) => (
-          <AccommodationMarker 
-            key={spot.id} 
+        {/* Food & Beverage Spots */}
+        {showFoodBeverageSpots && foodBeverageSpots.map((spot) => (
+          <FoodBeverageMarker
+            key={spot.id}
             spot={spot}
             userLatitude={latitude}
             userLongitude={longitude}
             onDestinationSelect={onDestinationSelect}
             isFavourite={isFavourite(spot.id)}
-            onToggleFavourite={onToggleFavourite}
+            onToggleFavourite={() => onToggleFavourite?.(spot)}
             showFavouritesFilter={showFavourites}
           />
         ))}
 
-        {/* Show favourites regardless of category filters when favourites filter is enabled */}
-        {!isTripMode && showFavourites && historicalSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
-          <HistoricalSpotMarker 
-            key={`fav-${spot.id}`} 
-            spot={spot} 
-            userLatitude={latitude}
-            userLongitude={longitude}
-            onDestinationSelect={onDestinationSelect}
-            isFavourite={true}
-            onToggleFavourite={onToggleFavourite}
-            showFavouritesFilter={true}
-          />
-        ))}
-
-        {!isTripMode && showFavourites && foodBeverageSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
-          <FoodBeverageMarker 
-            key={`fav-${spot.id}`} 
+        {/* Accommodation Spots */}
+        {showAccommodationSpots && accommodationSpots.map((spot) => (
+          <AccommodationMarker
+            key={spot.id}
             spot={spot}
             userLatitude={latitude}
             userLongitude={longitude}
             onDestinationSelect={onDestinationSelect}
-            isFavourite={true}
-            onToggleFavourite={onToggleFavourite}
-            showFavouritesFilter={true}
+            isFavourite={isFavourite(spot.id)}
+            onToggleFavourite={() => onToggleFavourite?.(spot)}
+            showFavouritesFilter={showFavourites}
           />
         ))}
 
-        {!isTripMode && showFavourites && accommodationSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
-          <AccommodationMarker 
-            key={`fav-${spot.id}`} 
-            spot={spot}
-            userLatitude={latitude}
-            userLongitude={longitude}
-            onDestinationSelect={onDestinationSelect}
-            isFavourite={true}
-            onToggleFavourite={onToggleFavourite}
-            showFavouritesFilter={true}
+        {/* Bounds Overlay */}
+        {showBounds && searchCenter && (
+          <BoundsOverlay
+            centerLat={searchCenter.lat}
+            centerLng={searchCenter.lng}
+            radiusMeters={searchRadius}
+            visible={true}
           />
-        ))}
+        )}
 
-        {/* Route Polyline */}
-        {showRoute && currentRoute && currentRoute.geometry && currentRoute.geometry.length > 0 && (
+        {/* Current Route */}
+        {showRoute && currentRoute && (
           <Polyline
             positions={currentRoute.geometry}
             pathOptions={{
               color: '#3b82f6',
-              weight: 8,
-              opacity: 0.9,
-              fillOpacity: 0.3,
-              dashArray: currentRoute.profile === 'walking' ? '10, 10' : 
-                         currentRoute.profile === 'cycling' ? '20, 10, 5, 10' : undefined
+              weight: 6,
+              opacity: 0.8,
+              fillOpacity: 0.2,
+              dashArray: '15, 10'
             }}
-            key={`route-${currentRoute.geometry.length}-${currentRoute.distance}-${currentRoute.duration}-${currentRoute.profile}`}
           />
         )}
 
-        {/* Trip Route Visualization */}
-        {isTripMode && currentTrip && currentTrip.route && currentTrip.route.points.length > 0 && (
-          <>
-            {/* Trip Route Polyline - Use real route geometry if available */}
-            <Polyline
-              positions={
-                currentTrip.route.routeGeometry && currentTrip.route.routeGeometry.length > 0
-                  ? currentTrip.route.routeGeometry.map(coord => [coord[1], coord[0]]) // Convert [lng, lat] to [lat, lng]
-                  : currentTrip.route.points.map(point => [point.latitude, point.longitude])
-              }
-              pathOptions={{
-                color: '#3b82f6',
-                weight: 6,
-                opacity: 0.8,
-                fillOpacity: 0.2,
-                dashArray: '15, 10'
-              }}
-              key={`trip-route-${currentTrip.route.id}`}
-            />
-            
-            {/* Trip Point Markers */}
-            {currentTrip.route.points.map((point, index) => (
-              <Marker
-                key={`trip-point-${point.id}`}
-                position={[point.latitude, point.longitude]}
-                icon={divIcon({
-                  html: `
-                    <div style="
-                      width: 40px;
-                      height: 40px;
-                      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-                      border: 3px solid white;
-                      border-radius: 50%;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-                      cursor: pointer;
-                    ">
-                      <span style="
-                        color: white;
-                        font-size: 16px;
-                        font-weight: bold;
-                        line-height: 1;
-                      ">${index + 1}</span>
-                    </div>
-                  `,
-                  className: 'trip-point-marker',
-                  iconSize: [40, 40],
-                  iconAnchor: [20, 20],
-                  popupAnchor: [0, -20]
-                })}
-
-              >
-                <Popup>
-                  <div className="trip-point-popup">
-                    <h4>{point.name}</h4>
-                    <p><strong>Category:</strong> {point.category}</p>
-                    <p><strong>Duration:</strong> {Math.floor(point.visitDuration / 60)}h {point.visitDuration % 60}m</p>
-                    <p>{point.description}</p>
-
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-          </>
+        {/* Trip Route */}
+        {isTripMode && currentTrip?.route && currentTrip.route.routeGeometry && (
+          <Polyline
+            positions={currentTrip.route.routeGeometry.map(coord => [coord[1], coord[0]])}
+            pathOptions={{
+              color: '#3b82f6',
+              weight: 6,
+              opacity: 0.8,
+              fillOpacity: 0.2,
+              dashArray: '15, 10'
+            }}
+          />
         )}
 
-
-        
-
+        {/* Trip Point Markers */}
+        {isTripMode && currentTrip?.route.points && currentTrip.route.points.map((point, index) => (
+          <Marker
+            key={`trip-point-${point.id}`}
+            position={[point.latitude, point.longitude]}
+            icon={divIcon({
+              html: `
+                <div style="
+                  width: 40px;
+                  height: 40px;
+                  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                  border: 3px solid white;
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                  cursor: pointer;
+                ">
+                  <span style="
+                    color: white;
+                    font-size: 16px;
+                    font-weight: bold;
+                    line-height: 1;
+                  ">${index + 1}</span>
+                </div>
+              `,
+              className: 'trip-point-marker',
+              iconSize: [40, 40],
+              iconAnchor: [20, 20],
+              popupAnchor: [0, -20]
+            })}
+          >
+            <Popup>
+              <div className="trip-point-popup">
+                <div className="trip-point-info">
+                  <strong>📍 {point.name}</strong>
+                  <br />
+                  Category: {point.category}
+                  <br />
+                  Visit Duration: {point.visitDuration} minutes
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
-      
+
+      {/* Map Control Buttons */}
       {onSearch && onClear && onToggleBounds && onRecenter && (
         <MapSearchButton
           map={map}
           onSearch={onSearch}
+          onClear={onClear}
+          onToggleBounds={onToggleBounds}
+          onRecenter={onRecenter}
           loading={spotsLoading}
           spotsCount={spotsCount}
-          onClear={onClear}
           showBounds={showBounds}
-          onToggleBounds={onToggleBounds}
           searchRadius={searchRadius}
-          onRecenter={onRecenter}
           userLocation={{ latitude, longitude }}
+          hasStartingPoint={!!startingPoint}
+          onRemoveStartingPoint={onRemoveStartingPoint}
         />
       )}
     </div>

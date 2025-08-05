@@ -13,6 +13,8 @@ interface MapSearchButtonProps {
   searchRadius: number;
   onRecenter: () => void;
   userLocation: { latitude: number | null; longitude: number | null };
+  hasStartingPoint?: boolean;
+  onRemoveStartingPoint?: () => void;
 }
 
 const MapSearchButton: React.FC<MapSearchButtonProps> = ({ 
@@ -25,7 +27,9 @@ const MapSearchButton: React.FC<MapSearchButtonProps> = ({
   onToggleBounds,
   searchRadius,
   onRecenter,
-  userLocation
+  userLocation,
+  hasStartingPoint = false,
+  onRemoveStartingPoint
 }) => {
   const handleSearch = async () => {
     if (!map) {
@@ -48,6 +52,16 @@ const MapSearchButton: React.FC<MapSearchButtonProps> = ({
   return (
     <div className="map-controls-overlay">
       <div className="map-controls-container">
+        {hasStartingPoint && onRemoveStartingPoint && (
+          <button 
+            className="remove-starting-point-button-overlay"
+            onClick={onRemoveStartingPoint}
+            title="Remove starting point"
+          >
+            📍
+          </button>
+        )}
+        
         <button 
           className="recenter-button-overlay"
           onClick={onRecenter}

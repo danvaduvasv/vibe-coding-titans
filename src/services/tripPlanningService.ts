@@ -34,6 +34,7 @@ export interface TripPlanningRequest {
   userLocation: { latitude: number; longitude: number };
   searchRadius: number; // Add search radius to validate points
   routeDistances?: Array<{ from: string; to: string; distance: number; duration: number }>;
+  homeLocation?: { latitude: number; longitude: number };
 }
 
 const openai = new OpenAI({
@@ -119,6 +120,7 @@ RULES:
 - Visit duration: 15-45min attractions, 30-60min food
 - Pay extra attention to the user input requests, especially the duration and interests
 - Use provided walking distances
+- Never include 2 food places in consecutive order (unless the user explicitly asks for it, or if the second one is a coffee place) 
 
 POINTS:
 H: ${JSON.stringify(compactHistorical)}
@@ -139,8 +141,7 @@ FORMAT:
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
       ],
-      temperature: 0.5, // Lower temperature for more focused responses
-      max_tokens: 800, // Reduced token limit
+      temperature: 0.3, // Lower temperature for more focused responses
       presence_penalty: 0.1, // Reduce repetition
       frequency_penalty: 0.1 // Reduce repetition
     });

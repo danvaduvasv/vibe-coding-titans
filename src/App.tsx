@@ -7,6 +7,7 @@ import { useAccommodationSpots } from './hooks/useAccommodationSpots';
 import { useFavourites } from './hooks/useFavourites';
 import { useHome } from './hooks/useHome';
 import { useTrip } from './hooks/useTrip';
+import { useStartingPoint } from './hooks/useStartingPoint';
 import SatelliteMap from './components/SatelliteMap';
 import LoadingSpinner from './components/LoadingSpinner';
 import ChatButton from './components/ChatButton';
@@ -93,10 +94,21 @@ function App() {
     isTripActive
   } = useTrip();
 
+  // Starting point functionality
+  const {
+    startingPoint,
+    setStartingPoint,
+    clearStartingPoint
+  } = useStartingPoint();
+
   const handleSetHome = () => {
     if (latitude !== null && longitude !== null) {
       setHome(latitude, longitude);
     }
+  };
+
+  const handleSetHomeFromClick = (lat: number, lng: number) => {
+    setHome(lat, lng);
   };
 
   const handleGoHome = () => {
@@ -105,16 +117,28 @@ function App() {
     }
   };
 
+  const handleSetStartingPoint = (lat: number, lng: number) => {
+    setStartingPoint(lat, lng);
+  };
+
+  const handleRemoveStartingPoint = () => {
+    clearStartingPoint();
+  };
+
   const handleMapReady = (mapInstance: LeafletMap) => {
     setMap(mapInstance);
   };
 
   const handleSearch = (centerLat: number, centerLng: number) => {
-    setSearchCenter({ lat: centerLat, lng: centerLng });
+    // Use starting point if set, otherwise use provided center
+    const searchLat = startingPoint ? startingPoint.latitude : centerLat;
+    const searchLng = startingPoint ? startingPoint.longitude : centerLng;
+    
+    setSearchCenter({ lat: searchLat, lng: searchLng });
     setShowBounds(true);
-    searchSpots(centerLat, centerLng, searchRadius);
-    searchFoodSpots(centerLat, centerLng, searchRadius);
-    searchAccommodationSpots(centerLat, centerLng, searchRadius);
+    searchSpots(searchLat, searchLng, searchRadius);
+    searchFoodSpots(searchLat, searchLng, searchRadius);
+    searchAccommodationSpots(searchLat, searchLng, searchRadius);
   };
 
   const handleClearSpots = () => {
@@ -184,7 +208,11 @@ function App() {
   };
 
   const handleGenerateTrip = async (userInput: string) => {
-    if (!latitude || !longitude) return;
+    // Use starting point if set, otherwise use current location
+    const userLat = startingPoint ? startingPoint.latitude : latitude;
+    const userLng = startingPoint ? startingPoint.longitude : longitude;
+    
+    if (!userLat || !userLng) return;
 
     // Add user message to chat
     const userMessage = {
@@ -229,8 +257,9 @@ function App() {
       const trips = await generateTripPlan({
         userInput,
         availablePoints,
-        userLocation: { latitude, longitude },
-        searchRadius: searchRadius
+        userLocation: { latitude: userLat, longitude: userLng },
+        searchRadius: searchRadius,
+        homeLocation: homeLocation || undefined
       });
 
       setAllTrips(trips);
@@ -512,9 +541,13 @@ function App() {
                   isFavourite={isFavourite}
                   onToggleFavourite={toggleFavourite}
                   onSetHome={handleSetHome}
+                  onSetHomeFromCoords={handleSetHomeFromClick}
                   homeLocation={homeLocation}
                   currentTrip={currentTrip}
                   isTripMode={isTripMode}
+                  startingPoint={startingPoint}
+                  onSetStartingPoint={handleSetStartingPoint}
+                  onRemoveStartingPoint={handleRemoveStartingPoint}
                 />
                 
                 {/* Chat Button */}

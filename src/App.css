@@ -2250,3 +2250,140 @@ body {
     font-size: 12px;
   }
 }
+
+/* Map Click Popup Styles */
+.map-click-popup {
+  padding: 8px;
+  text-align: center;
+}
+
+.click-location-info {
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.click-location-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.set-starting-point-button {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.set-starting-point-button:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: scale(1.05);
+}
+
+/* Starting Point Popup Styles */
+.starting-point-popup {
+  padding: 8px;
+  text-align: center;
+}
+
+.starting-point-info {
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.starting-point-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.remove-starting-point-button {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.remove-starting-point-button:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: scale(1.05);
+}
+
+/* Home Popup Styles */
+.home-popup {
+  padding: 8px;
+  text-align: center;
+}
+
+.home-info {
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.home-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.set-home-as-starting-point-button {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.set-home-as-starting-point-button:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: scale(1.05);
+}
+
+/* Remove Starting Point Button Overlay - Red with transparent background */
+.remove-starting-point-button-overlay {
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  margin-bottom: 8px;
+}
+
+.remove-starting-point-button-overlay:hover {
+  background: rgba(239, 68, 68, 1);
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
+.remove-starting-point-button-overlay:active {
+  transform: scale(0.95);
+}
