@@ -6,10 +6,17 @@ import { useFoodBeverageSpots } from './hooks/useFoodBeverageSpots';
 import { useAccommodationSpots } from './hooks/useAccommodationSpots';
 import { useFavourites } from './hooks/useFavourites';
 import { useHome } from './hooks/useHome';
+import { useTrip } from './hooks/useTrip';
 import SatelliteMap from './components/SatelliteMap';
 import LoadingSpinner from './components/LoadingSpinner';
+import ChatButton from './components/ChatButton';
+import ChatInterface from './components/ChatInterface';
+import TripDisplay from './components/TripDisplay';
+import TripPanel from './components/TripPanel';
 import type { Route } from './services/routingService';
+import type { TripRoute } from './services/tripPlanningService';
 import NavigationPanel from './components/NavigationPanel';
+import { generateTripPlan } from './services/tripPlanningService';
 import './App.css';
 
 function App() {
@@ -51,6 +58,15 @@ function App() {
   const [currentRoute, setCurrentRoute] = useState<Route | null>(null);
   const [showRoute, setShowRoute] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<{ lat: number; lng: number } | null>(null);
+  
+  // Trip planning functionality
+  const [chatOpen, setChatOpen] = useState(false);
+  const [tripDisplayOpen, setTripDisplayOpen] = useState(false);
+  const [currentTripDisplay, setCurrentTripDisplay] = useState<TripRoute | null>(null);
+  const [allTrips, setAllTrips] = useState<TripRoute[]>([]);
+  const [chatMessages, setChatMessages] = useState<Array<{ id: string; type: 'user' | 'ai'; content: string; timestamp: Date }>>([]);
+  const [isGeneratingTrip, setIsGeneratingTrip] = useState(false);
+  const [showTripPanel, setShowTripPanel] = useState(false);
 
   // Favourites functionality
   const { 
@@ -65,6 +81,17 @@ function App() {
     setHome, 
     hasHome 
   } = useHome();
+
+  // Trip functionality
+  const {
+    currentTrip,
+    isTripMode,
+    setTrip,
+    clearTrip,
+    toggleTripMode,
+    hasTrip,
+    isTripActive
+  } = useTrip();
 
   const handleSetHome = () => {
     if (latitude !== null && longitude !== null) {
@@ -146,6 +173,124 @@ function App() {
   const handleCloseNavigation = () => {
     setSelectedDestination(null);
   };
+
+  // Trip planning handlers
+  const handleOpenChat = () => {
+    setChatOpen(true);
+  };
+
+  const handleCloseChat = () => {
+    setChatOpen(false);
+  };
+
+  const handleGenerateTrip = async (userInput: string) => {
+    if (!latitude || !longitude) return;
+
+    // Add user message to chat
+    const userMessage = {
+      id: Date.now().toString(),
+      type: 'user' as const,
+      content: userInput,
+      timestamp: new Date()
+    };
+    setChatMessages(prev => [...prev, userMessage]);
+
+    setIsGeneratingTrip(true);
+
+    try {
+      // Prepare available points for AI
+      const availablePoints = {
+        historical: historicalSpots.map(spot => ({
+          id: spot.id,
+          name: spot.name,
+          category: spot.category,
+          latitude: spot.latitude,
+          longitude: spot.longitude,
+          description: spot.description || ''
+        })),
+        food: foodBeverageSpots.map(spot => ({
+          id: spot.id,
+          name: spot.name,
+          category: spot.category,
+          latitude: spot.latitude,
+          longitude: spot.longitude,
+          description: spot.description || ''
+        })),
+        accommodation: accommodationSpots.map(spot => ({
+          id: spot.id,
+          name: spot.name,
+          category: spot.category,
+          latitude: spot.latitude,
+          longitude: spot.longitude,
+          description: spot.description || ''
+        }))
+      };
+
+      const trips = await generateTripPlan({
+        userInput,
+        availablePoints,
+        userLocation: { latitude, longitude }
+      });
+
+      setAllTrips(trips);
+
+      // Add AI response to chat
+      const aiMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai' as const,
+        content: `I've created ${trips.length} personalized trip options for you! Here are the highlights:\n\n${trips.map((trip, index) => 
+          `${index + 1}. **${trip.name}** - ${Math.floor(trip.totalDuration / 60)}h ${trip.totalDuration % 60}m, ${(trip.totalDistance / 1000).toFixed(1)}km\n   ${trip.description}`
+        ).join('\n\n')}\n\nClick on any trip to view the full details and set it as your current route.`,
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, aiMessage]);
+
+      // Show the first trip
+      if (trips.length > 0) {
+        setCurrentTripDisplay(trips[0]);
+        setTripDisplayOpen(true);
+      }
+
+    } catch (error) {
+      console.error('Error generating trip:', error);
+      const errorMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai' as const,
+        content: 'Sorry, I encountered an error while planning your trip. Please try again or check your internet connection.',
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsGeneratingTrip(false);
+    }
+  };
+
+  const handleSelectTrip = (trip: TripRoute) => {
+    setTrip(trip);
+    setTripDisplayOpen(false);
+    setChatOpen(false);
+    setShowTripPanel(true);
+  };
+
+  const handleCloseTripDisplay = () => {
+    setTripDisplayOpen(false);
+    setCurrentTripDisplay(null);
+  };
+
+  const handleToggleTripMode = () => {
+    toggleTripMode();
+  };
+
+  const handleClearTrip = () => {
+    clearTrip();
+    setShowTripPanel(false);
+  };
+
+  const handleCloseTripPanel = () => {
+    setShowTripPanel(false);
+  };
+
+
 
 
 
@@ -271,6 +416,32 @@ function App() {
                 <span className="control-icon">🏠</span>
                 <span className="control-text">Home</span>
               </button>
+
+              <button 
+                className={`control-button ${isTripActive() ? 'active' : ''}`}
+                onClick={() => {
+                  if (hasTrip()) {
+                    setShowTripPanel(true);
+                  }
+                  handleToggleTripMode();
+                }}
+                disabled={!hasTrip()}
+                title={hasTrip() ? 'Toggle trip mode and open panel' : 'Plan a trip first'}
+              >
+                <span className="control-icon">🗺️</span>
+                <span className="control-text">Current Trip</span>
+              </button>
+
+              {hasTrip() && (
+                <button 
+                  className="control-button"
+                  onClick={handleClearTrip}
+                  title="Clear current trip"
+                >
+                  <span className="control-icon">✕</span>
+                  <span className="control-text">Clear Trip</span>
+                </button>
+              )}
             </div>
 
             {/* Error Display */}
@@ -341,6 +512,14 @@ function App() {
                   onToggleFavourite={toggleFavourite}
                   onSetHome={handleSetHome}
                   homeLocation={homeLocation}
+                  currentTrip={currentTrip}
+                  isTripMode={isTripMode}
+                />
+                
+                {/* Chat Button */}
+                <ChatButton 
+                  onOpenChat={handleOpenChat}
+                  isMinimized={true}
                 />
                 
                 {/* Navigation Panel */}
@@ -354,6 +533,37 @@ function App() {
                   />
                 )}
               </div>
+
+              {/* Chat Interface */}
+              <ChatInterface
+                isOpen={chatOpen}
+                onClose={handleCloseChat}
+                onGenerateTrip={handleGenerateTrip}
+                isLoading={isGeneratingTrip}
+                messages={chatMessages}
+              />
+
+                              {/* Trip Display */}
+                {tripDisplayOpen && currentTripDisplay && (
+                  <TripDisplay
+                    trip={currentTripDisplay}
+                    onClose={handleCloseTripDisplay}
+                    onSelectTrip={handleSelectTrip}
+                    allTrips={allTrips}
+                  />
+                )}
+
+                {/* Trip Panel */}
+                {showTripPanel && currentTrip && (
+                  <TripPanel
+                    currentTrip={currentTrip}
+                    allTrips={allTrips}
+                    onSelectTrip={handleSelectTrip}
+                    onClose={handleCloseTripPanel}
+                    onToggleTripMode={handleToggleTripMode}
+                    isTripMode={isTripMode}
+                  />
+                )}
 
               {/* Map Help */}
               <div className="map-help-main">

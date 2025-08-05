@@ -1,0 +1,372 @@
+.trip-turn-by-turn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 350px;
+  max-height: 80vh;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideInLeft 0.3s ease;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.turn-by-turn-header {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 16px 16px 0 0;
+}
+
+.turn-by-turn-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.turn-by-turn-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.turn-by-turn-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.turn-by-turn-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.minimized-view {
+  text-align: center;
+}
+
+.next-turn {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.turn-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.turn-info {
+  flex: 1;
+  text-align: left;
+}
+
+.turn-instruction {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.turn-details {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.destination-marker {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.expand-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.expand-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  transform: translateY(-1px);
+}
+
+.expanded-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.route-progress {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  text-align: center;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.current-step {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.step-icon {
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.step-info {
+  flex: 1;
+}
+
+.step-instruction {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.step-details {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.step-navigation {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-btn {
+  flex: 1;
+  background: #f1f5f9;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  color: #475569;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.full-route {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.full-route h4 {
+  margin: 0 0 12px 0;
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.route-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.route-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.route-step:hover {
+  background: #f8fafc;
+}
+
+.route-step.active {
+  background: #ecfdf5;
+  border-left: 3px solid #10b981;
+}
+
+.step-number {
+  background: #e2e8f0;
+  color: #475569;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.route-step.active .step-number {
+  background: #10b981;
+  color: white;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-instruction {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 2px;
+  font-size: 12px;
+}
+
+.step-details {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.minimize-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.minimize-btn:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .trip-turn-by-turn {
+    width: 90%;
+    max-width: 350px;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+  }
+  
+  .turn-by-turn-header {
+    padding: 12px 16px;
+  }
+  
+  .turn-by-turn-header h3 {
+    font-size: 14px;
+  }
+  
+  .turn-by-turn-content {
+    padding: 12px;
+  }
+  
+  .next-turn {
+    padding: 12px;
+  }
+  
+  .turn-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+  
+  .step-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+} 

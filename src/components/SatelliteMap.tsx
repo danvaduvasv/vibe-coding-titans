@@ -12,6 +12,7 @@ import type { HistoricalSpot } from '../types/HistoricalSpot';
 import type { FoodBeverageSpot } from '../types/FoodBeverageSpot';
 import type { AccommodationSpot } from '../types/AccommodationSpot';
 import type { Route } from '../services/routingService';
+import type { CurrentTrip } from '../hooks/useTrip';
 import 'leaflet/dist/leaflet.css';
 
 delete (Icon.Default.prototype as any)._getIconUrl;
@@ -54,6 +55,9 @@ interface SatelliteMapProps {
   // Home functionality
   onSetHome?: () => void;
   homeLocation?: { latitude: number; longitude: number } | null;
+  // Trip functionality
+  currentTrip?: CurrentTrip | null;
+  isTripMode?: boolean;
 }
 
 const SatelliteMap: React.FC<SatelliteMapProps> = ({ 
@@ -84,7 +88,9 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
   isFavourite = () => false,
   onToggleFavourite,
   onSetHome,
-  homeLocation = null
+  homeLocation = null,
+  currentTrip = null,
+  isTripMode = false
 }) => {
   const [map, setMap] = useState<LeafletMap | null>(null);
 
@@ -209,7 +215,8 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           ) : null
         )}
 
-              {showBounds && searchCenter && (
+              {/* Hide bounds and other elements when in trip mode */}
+              {!isTripMode && showBounds && searchCenter && (
                 <BoundsOverlay
                   centerLat={searchCenter.lat}
                   centerLng={searchCenter.lng}
@@ -218,7 +225,8 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
                 />
               )}
 
-        {showHistoricalSpots && historicalSpots.map((spot) => (
+        {/* Hide regular spots when in trip mode */}
+        {!isTripMode && showHistoricalSpots && historicalSpots.map((spot) => (
           <HistoricalSpotMarker 
             key={spot.id} 
             spot={spot} 
@@ -231,7 +239,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           />
         ))}
 
-        {showFoodBeverageSpots && foodBeverageSpots.map((spot) => (
+        {!isTripMode && showFoodBeverageSpots && foodBeverageSpots.map((spot) => (
           <FoodBeverageMarker 
             key={spot.id} 
             spot={spot}
@@ -244,7 +252,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           />
         ))}
 
-        {showAccommodationSpots && accommodationSpots.map((spot) => (
+        {!isTripMode && showAccommodationSpots && accommodationSpots.map((spot) => (
           <AccommodationMarker 
             key={spot.id} 
             spot={spot}
@@ -258,7 +266,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
         ))}
 
         {/* Show favourites regardless of category filters when favourites filter is enabled */}
-        {showFavourites && historicalSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
+        {!isTripMode && showFavourites && historicalSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
           <HistoricalSpotMarker 
             key={`fav-${spot.id}`} 
             spot={spot} 
@@ -271,7 +279,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           />
         ))}
 
-        {showFavourites && foodBeverageSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
+        {!isTripMode && showFavourites && foodBeverageSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
           <FoodBeverageMarker 
             key={`fav-${spot.id}`} 
             spot={spot}
@@ -284,7 +292,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           />
         ))}
 
-        {showFavourites && accommodationSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
+        {!isTripMode && showFavourites && accommodationSpots.filter(spot => isFavourite(spot.id)).map((spot) => (
           <AccommodationMarker 
             key={`fav-${spot.id}`} 
             spot={spot}
@@ -312,6 +320,73 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
             key={`route-${currentRoute.geometry.length}-${currentRoute.distance}-${currentRoute.duration}-${currentRoute.profile}`}
           />
         )}
+
+        {/* Trip Route Visualization */}
+        {isTripMode && currentTrip && currentTrip.route && currentTrip.route.points.length > 0 && (
+          <>
+            {/* Trip Route Polyline - Use real route geometry if available */}
+            <Polyline
+              positions={
+                currentTrip.route.routeGeometry && currentTrip.route.routeGeometry.length > 0
+                  ? currentTrip.route.routeGeometry.map(coord => [coord[1], coord[0]]) // Convert [lng, lat] to [lat, lng]
+                  : currentTrip.route.points.map(point => [point.latitude, point.longitude])
+              }
+              pathOptions={{
+                color: '#10b981',
+                weight: 6,
+                opacity: 0.8,
+                fillOpacity: 0.2,
+                dashArray: '15, 10'
+              }}
+              key={`trip-route-${currentTrip.route.id}`}
+            />
+            
+            {/* Trip Point Markers */}
+            {currentTrip.route.points.map((point, index) => (
+              <Marker
+                key={`trip-point-${point.id}`}
+                position={[point.latitude, point.longitude]}
+                icon={divIcon({
+                  html: `
+                    <div style="
+                      width: 40px;
+                      height: 40px;
+                      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                      border: 3px solid white;
+                      border-radius: 50%;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                    ">
+                      <span style="
+                        color: white;
+                        font-size: 16px;
+                        font-weight: bold;
+                        line-height: 1;
+                      ">${index + 1}</span>
+                    </div>
+                  `,
+                  className: 'trip-point-marker',
+                  iconSize: [40, 40],
+                  iconAnchor: [20, 20],
+                  popupAnchor: [0, -20]
+                })}
+              >
+                <Popup>
+                  <div className="trip-point-popup">
+                    <h4>{point.name}</h4>
+                    <p><strong>Category:</strong> {point.category}</p>
+                    <p><strong>Duration:</strong> {Math.floor(point.visitDuration / 60)}h {point.visitDuration % 60}m</p>
+                    <p>{point.description}</p>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </>
+        )}
+
+
         
 
       </MapContainer>

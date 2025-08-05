@@ -962,6 +962,50 @@ body {
   box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
 }
 
+/* Trip Point Popup Styles */
+.trip-point-popup {
+  min-width: 200px;
+}
+
+.trip-point-popup h4 {
+  margin: 0 0 8px 0;
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.trip-point-popup p {
+  margin: 4px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.trip-point-popup strong {
+  color: #374151;
+}
+
+/* Alternative Trip Point Popup Styles */
+.alt-trip-point-popup {
+  min-width: 200px;
+}
+
+.alt-trip-point-popup h4 {
+  margin: 0 0 8px 0;
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.alt-trip-point-popup p {
+  margin: 4px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.alt-trip-point-popup strong {
+  color: #374151;
+}
+
 .historical-spot-content::-webkit-scrollbar {
   width: 6px;
 }
