@@ -332,7 +332,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
                   : currentTrip.route.points.map(point => [point.latitude, point.longitude])
               }
               pathOptions={{
-                color: '#10b981',
+                color: '#3b82f6',
                 weight: 6,
                 opacity: 0.8,
                 fillOpacity: 0.2,
@@ -351,13 +351,13 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
                     <div style="
                       width: 40px;
                       height: 40px;
-                      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
                       border: 3px solid white;
                       border-radius: 50%;
                       display: flex;
                       align-items: center;
                       justify-content: center;
-                      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
                       cursor: pointer;
                     ">
                       <span style="

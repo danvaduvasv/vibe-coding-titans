@@ -17,6 +17,11 @@ A modern React application that helps you discover historical places, food & bev
 - **Distance Calculation**: Real-time distance from your location to each spot
 - **⭐ Favourites System**: Save and manage your favorite locations with local storage
 - **🏠 Home Location**: Set and navigate to your home location with persistent storage
+- **🤖 AI-Powered Trip Planning**: Intelligent trip generation with OpenAI integration
+- **🗺️ Trip Mode**: Focused navigation with route visualization and turn-by-turn guidance
+- **📱 Minimized Trip Panel**: Compact navigation view with expandable step details
+- **🎯 Smart Route Segments**: Individual route calculations with accurate distances and durations
+- **🏠 Home-Aware Trip Planning**: AI considers home location for circular trip suggestions
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Modern Aesthetics**: Glass morphism design with gradients and smooth animations
 - **Compact Header**: Optimized header height for better space utilization
@@ -199,6 +204,32 @@ When you first visit the app, your browser will ask for location permissions. Ma
 8. **Clear results** with the "✕ Clear" button to search a new area
 8. **Repeat** by repositioning the map center and searching again
 
+## 🤖 AI-Powered Trip Planning
+
+### Chat-Based Trip Generation
+- **💬 Chat Interface**: Minimized chat button in lower-right corner
+- **AI Trip Advisor**: OpenAI-powered intelligent trip planning
+- **Personalized Suggestions**: Considers user interests, duration, and preferences
+- **Multiple Options**: Generates primary and alternative trip suggestions
+- **Home-Aware Planning**: AI considers home location for circular trip suggestions
+
+### Trip Features
+- **🎯 Trip Mode**: Focused navigation with route visualization
+- **🗺️ Route Visualization**: Blue route lines and markers on map
+- **📱 Trip Panel**: Detailed trip information with route points
+- **🎯 Minimized Panel**: Compact view showing next route point and turn-by-turn steps
+- **🔄 Alternative Routes**: Switch between different trip suggestions
+- **⏱️ Accurate Timing**: Real walking distances and durations from Mapbox
+- **🏠 Home Integration**: AI considers home location when available
+
+### Trip Panel Features
+- **📊 Trip Statistics**: Duration, distance, and estimated cost
+- **📍 Route Points**: Detailed list of all destinations
+- **🎯 Turn-by-Turn Navigation**: Expandable navigation instructions
+- **📱 Minimized View**: Compact navigation with next step focus
+- **🔄 Alternative Routes**: Easy switching between trip options
+- **🎨 Blue Theme**: Distinct blue color scheme for trip elements
+
 ## 🗺️ Map Controls
 
 - **🖱️ Scroll** to zoom in/out
@@ -214,6 +245,8 @@ When you first visit the app, your browser will ask for location permissions. Ma
 - **🚗 Click "Get Route"** in popups to calculate navigation directions
 - **🗺️ Click "Home"** in Map Controls to navigate to your saved home location
 - **⭐ Click "Favourites"** filter to show only your saved locations
+- **🎯 Click "Current Trip"** to enter trip mode and view route visualization
+- **💬 Click chat button** to start AI-powered trip planning
 - **Zoom controls** available in the top-left corner of the map
 
 ## 🛠️ Built With
@@ -224,6 +257,8 @@ When you first visit the app, your browser will ask for location permissions. Ma
 - **Leaflet** - Interactive map library
 - **React-Leaflet** - React components for Leaflet
 - **Geoapify Places API** - Real historical places and points of interest
+- **OpenAI API** - AI-powered trip planning and content generation
+- **Mapbox Directions API** - Accurate walking routes and turn-by-turn navigation
 - **Esri World Imagery** - High-resolution satellite tiles
 
 ## 📱 Browser Support
@@ -284,21 +319,30 @@ src/
 │   ├── AccommodationMarker.tsx    # Accommodation spot markers
 │   ├── NavigationPanel.tsx        # Route planning and directions
 │   ├── MapSearchButton.tsx        # Search controls overlay
-│   └── LoadingSpinner.tsx         # Loading state component
+│   ├── LoadingSpinner.tsx         # Loading state component
+│   ├── ChatButton.tsx             # AI trip planning interface
+│   ├── ChatInterface.tsx          # Full-screen chat interface
+│   ├── TripDisplay.tsx            # Trip selection and display
+│   ├── TripPanel.tsx              # Trip details and navigation
+│   └── TripTurnByTurn.tsx         # Turn-by-turn navigation component
 ├── hooks/
 │   ├── useGeolocation.ts          # Custom geolocation hook
 │   ├── useHistoricalSpots.ts      # Custom hook for historical spots
 │   ├── useFavourites.ts           # Favourites management hook
-│   └── useHome.ts                 # Home location management hook
+│   ├── useHome.ts                 # Home location management hook
+│   └── useTrip.ts                 # Trip state management hook
 ├── services/
 │   ├── openaiService.ts           # OpenAI API integration
 │   ├── geoapifyService.ts         # Geoapify Places API integration
+│   ├── tripPlanningService.ts     # AI trip planning service
+│   ├── tripRoutingService.ts      # Mapbox routing service
 │   ├── routeService.ts            # OSRM route calculation
 │   ├── googleMapsService.ts       # Google Maps Directions API
 │   ├── mapboxService.ts           # Mapbox Directions API
 │   └── routingService.ts          # Routing service abstraction
 ├── types/
-│   └── HistoricalSpot.ts          # TypeScript interfaces
+│   ├── HistoricalSpot.ts          # TypeScript interfaces
+│   └── TripTypes.ts               # Trip-related type definitions
 ├── App.tsx                        # Main app component
 ├── App.css                        # App-specific styles
 └── index.css                     # Global styles
@@ -352,6 +396,26 @@ Personal home location management:
 - **Smart visibility** - home marker only shows when different from current location
 - **Golden theme** - consistent styling with home icon and buttons
 
+### 🤖 AI-Powered Trip Planning
+Intelligent trip generation with OpenAI integration:
+- **Chat interface** for natural language trip requests
+- **AI trip advisor** that considers user interests and preferences
+- **Personalized suggestions** based on available points and user input
+- **Home-aware planning** - AI considers home location for circular trips
+- **Multiple trip options** - primary and alternative route suggestions
+- **Real routing data** - uses Mapbox for accurate walking routes
+- **Cost optimization** - efficient API usage with smart data filtering
+
+### 🗺️ Trip Mode & Navigation
+Comprehensive trip management and navigation:
+- **Trip mode** - focused navigation with route visualization
+- **Blue route theme** - distinct visual styling for trip elements
+- **Trip panel** - detailed trip information and navigation
+- **Minimized panel** - compact view with next step focus
+- **Turn-by-turn navigation** - expandable step-by-step instructions
+- **Alternative routes** - easy switching between trip options
+- **Real-time routing** - accurate distances and durations from Mapbox
+
 ### Responsive Design
 - Mobile-first approach
 - Adaptive layout for different screen sizes
@@ -368,37 +432,43 @@ This application:
 
 ## ⚠️ Important Notes
 
-### Geoapify API Usage
-- Requires a free Geoapify API key (generous free tier available)
-- Each search query counts toward your monthly request limit
-- Historical spots are only fetched when you click the "Find Historical Spots" button
-- You control when API calls are made, helping manage usage
-- Free tier includes 3,000 requests per day
-- Much more cost-effective than AI-based solutions
+### API Usage
+- **Geoapify**: Requires a free API key (generous free tier available)
+- **OpenAI**: Requires API key for AI trip planning features
+- **Mapbox**: Optional API key for enhanced routing (free tier available)
+- Each search query counts toward your monthly request limits
+- Historical spots are only fetched when you manually trigger searches
+- Trip planning uses OpenAI API for intelligent suggestions
+- Routing calculations use Mapbox API for accurate directions
 
 ### Development vs Production
 - Current implementation makes direct API calls from the browser
 - For production apps with sensitive data, consider server-side API calls
 - Consider implementing caching to reduce API calls and improve performance
-- Geoapify API is safe for browser use with proper key restrictions
+- All APIs are safe for browser use with proper key restrictions
 
 ### Troubleshooting
 
 #### Historical Spots Not Appearing
-1. **Check browser console** for detailed Geoapify API response logs
-2. **Verify API key** is set correctly in `.env` file
+1. **Check browser console** for detailed API response logs
+2. **Verify API keys** are set correctly in `.env` file
 3. **Check coordinates** - the app logs all returned places and validation results
-4. **Area coverage** - some areas may have limited historical places in Geoapify's database
-5. **Demo marker** - if no historical spots are found, a demo marker appears within bounds for testing
+4. **Area coverage** - some areas may have limited historical places in databases
+5. **Demo marker** - if no historical spots are found, a demo marker appears for testing
+
+#### Trip Planning Issues
+1. **Check OpenAI API key** is set correctly
+2. **Verify Mapbox API key** for routing features
+3. **Check search radius** - ensure points are available within radius
+4. **Review console logs** for detailed error information
+5. **Try different trip requests** - vary duration and interests
 
 #### Debugging Features
 - Open browser developer tools to see detailed logging
-- Fixed 1km × 1km bounds are logged with exact coordinates
-- Geoapify API requests and responses are logged for troubleshooting
-- Place validation results are logged for each location
-- Bounds violations are logged when places fall outside the search area
-- Distance calculations are logged for verification
-- Category mapping and data processing steps are logged
+- API requests and responses are logged for troubleshooting
+- Trip planning steps and routing calculations are logged
+- Distance calculations and validation results are logged
+- Error handling provides specific feedback for issues
 
 ## 📄 License
 
