@@ -42,55 +42,6 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
-// Clean and validate JSON response from OpenAI
-const cleanAndValidateJSON = (content: string): string => {
-  try {
-    // First, try to parse as-is
-    JSON.parse(content);
-    return content;
-  } catch (error) {
-    console.log("Initial JSON parsing failed, attempting to clean...");
-    
-    let cleaned = content;
-    
-    // Remove any markdown code blocks
-    cleaned = cleaned.replace(/```json\s*/g, '').replace(/```\s*$/g, '');
-    
-    // Fix common JSON issues:
-    // 1. Add quotes around unquoted field names
-    cleaned = cleaned.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":');
-    
-    // 2. Add quotes around unquoted string values
-    cleaned = cleaned.replace(/:\s*([a-zA-Z][a-zA-Z0-9\s\-_]+)([,}])/g, ':"$1"$2');
-    
-    // 3. Fix trailing commas
-    cleaned = cleaned.replace(/,(\s*[}\]])/g, '$1');
-    
-    // 4. Fix missing quotes around string values that contain special characters
-    cleaned = cleaned.replace(/:\s*([^"][^,}\]]*[^"\s,}\]])/g, ':"$1"');
-    
-    // 5. Fix boolean and number values that might have been quoted
-    cleaned = cleaned.replace(/:\s*"(\d+(?:\.\d+)?)"([,}])/g, ':$1$2');
-    cleaned = cleaned.replace(/:\s*"(true|false)"([,}])/g, ':$1$2');
-    
-    // 6. Fix null values
-    cleaned = cleaned.replace(/:\s*"null"([,}])/g, ':null$1');
-    
-    console.log("Cleaned JSON:", cleaned);
-    
-    // Validate the cleaned JSON
-    try {
-      JSON.parse(cleaned);
-      return cleaned;
-    } catch (secondError) {
-      console.error("Failed to clean JSON:", secondError);
-      console.error("Original content:", content);
-      console.error("Cleaned content:", cleaned);
-      throw new Error(`Failed to parse JSON response from OpenAI: ${secondError}`);
-    }
-  }
-};
-
 export const generateTripPlan = async (request: TripPlanningRequest): Promise<TripRoute[]> => {
   try {
     // Optimize: Only calculate distances for points that are likely to be used
@@ -212,11 +163,48 @@ FORMAT:
     console.log("Response from OpenAI:", content);
     console.log("Response from OpenAI:", response);
     
-    // Clean and validate the JSON response
-    const cleanedContent = cleanAndValidateJSON(content);
+    // Second OpenAI call to ensure proper JSON formatting
+    const jsonFormattingResponse = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo", // Cheapest model for formatting
+      messages: [
+        {
+          role: "system",
+          content: `You are a JSON formatter. Your ONLY job is to convert the given text into valid JSON format. 
+
+RULES:
+- Return ONLY valid JSON, nothing else
+- Fix all quotes, brackets, and formatting issues
+- Ensure all field names are properly quoted
+- Ensure all string values are properly quoted
+- Remove any markdown formatting
+- Remove any extra text or explanations
+- If the input contains trip data, ensure it follows this exact structure:
+  {"trips":[{"id":"t1","name":"Trip Name","description":"Description","points":[{"id":"p1","name":"Point Name","category":"historical","latitude":40.7,"longitude":-74.0,"visitDuration":45,"description":"Description"}],"totalDuration":180,"totalDistance":2500,"estimatedCost":25,"difficulty":"easy"}]}
+
+- NEVER add any text before or after the JSON
+- NEVER include any explanations or comments
+- Return ONLY the cleaned JSON string`
+        },
+        {
+          role: "user",
+          content: `Convert this to valid JSON format:\n\n${content}`
+        }
+      ],
+      temperature: 0, // Zero temperature for consistent formatting
+      max_tokens: 4000,
+      presence_penalty: 0,
+      frequency_penalty: 0
+    });
+
+    const formattedContent = jsonFormattingResponse.choices[0]?.message?.content;
+    if (!formattedContent) {
+      throw new Error('No response from JSON formatting OpenAI call');
+    }
+    
+    console.log("Formatted JSON:", formattedContent);
     
     // Parse the JSON response
-    const parsedResponse = JSON.parse(cleanedContent);
+    const parsedResponse = JSON.parse(formattedContent);
     const trips = parsedResponse.trips || [];
 
     // Add real routing data to each trip
