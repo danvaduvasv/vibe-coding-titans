@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { TripRoute } from '../services/tripPlanningService';
 import type { CurrentTrip } from '../hooks/useTrip';
 import './TripPanel.css';
@@ -20,6 +20,7 @@ const TripPanel: React.FC<TripPanelProps> = ({
   onToggleTripMode,
   isTripMode
 }) => {
+  const [expandedPointIndex, setExpandedPointIndex] = useState<number>(-1);
   const formatDuration = (minutes: number): string => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -34,6 +35,29 @@ const TripPanel: React.FC<TripPanelProps> = ({
       return `${(meters / 1000).toFixed(1)}km`;
     }
     return `${meters}m`;
+  };
+
+  const handleRoutePointClick = (pointIndex: number) => {
+    if (expandedPointIndex === pointIndex) {
+      // Collapse if already expanded
+      setExpandedPointIndex(-1);
+    } else {
+      // Expand the clicked point
+      setExpandedPointIndex(pointIndex);
+    }
+  };
+
+  const getDirectionIcon = (instruction: string): string => {
+    const lowerInstruction = instruction.toLowerCase();
+    if (lowerInstruction.includes('turn right')) return '↱';
+    if (lowerInstruction.includes('turn left')) return '↰';
+    if (lowerInstruction.includes('continue') || lowerInstruction.includes('straight')) return '↑';
+    if (lowerInstruction.includes('u-turn')) return '↻';
+    if (lowerInstruction.includes('slight right')) return '↱';
+    if (lowerInstruction.includes('slight left')) return '↰';
+    if (lowerInstruction.includes('sharp right')) return '↱';
+    if (lowerInstruction.includes('sharp left')) return '↰';
+    return '→';
   };
 
   if (!currentTrip) return null;
@@ -76,15 +100,70 @@ const TripPanel: React.FC<TripPanelProps> = ({
           <h4>📍 Route Points</h4>
           <div className="route-points-list">
             {currentTrip.route.points.map((point, index) => (
-              <div key={point.id} className="route-point-item">
-                <div className="point-number">{index + 1}</div>
-                <div className="point-info">
-                  <div className="point-name">{point.name}</div>
-                  <div className="point-details">
-                    <span className="point-category">{point.category}</span>
-                    <span className="point-duration">{formatDuration(point.visitDuration)}</span>
+              <div key={point.id} className="route-point-container">
+                <div 
+                  className="route-point-item"
+                  onClick={() => handleRoutePointClick(index)}
+                  style={{ cursor: 'pointer' }}
+                  title="Click for turn-by-turn navigation"
+                >
+                  <div className="point-number">{index + 1}</div>
+                  <div className="point-info">
+                    <div className="point-name">{point.name}</div>
+                    <div className="point-details">
+                      <span className="point-category">{point.category}</span>
+                      <span className="point-duration">{formatDuration(point.visitDuration)}</span>
+                    </div>
+                  </div>
+                  <div className="expand-icon">
+                    {expandedPointIndex === index ? '▼' : '▶'}
                   </div>
                 </div>
+                
+                {/* Expandable Turn-by-Turn Navigation */}
+                {expandedPointIndex === index && currentTrip?.route.routeSegments && (
+                  <div className="route-point-navigation">
+                    {(() => {
+                      const relevantSegment = currentTrip.route.routeSegments[index];
+                      if (!relevantSegment) return null;
+                      
+                      return (
+                        <div className="navigation-segment">
+                          <div className="segment-header">
+                            <span className="segment-title">
+                              {index === 0 ? 'From Start' : `From ${currentTrip.route.points[index - 1]?.name || 'Previous Point'}`}
+                            </span>
+                            <span className="segment-distance">
+                              {formatDistance(Math.round(relevantSegment.distance))} • {formatDuration(relevantSegment.duration)}
+                            </span>
+                          </div>
+                          <div className="segment-steps">
+                            {relevantSegment.steps?.map((step, stepIndex) => (
+                              <div key={`step-${stepIndex}`} className="navigation-step">
+                                <div className="step-icon">
+                                  {getDirectionIcon(step.instruction)}
+                                </div>
+                                <div className="step-info">
+                                  <div className="step-instruction">{step.instruction}</div>
+                                  <div className="step-details">
+                                    {formatDistance(Math.round(step.distance))} • {formatDuration(step.duration)}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="segment-destination">
+                            <div className="destination-icon">📍</div>
+                            <div className="destination-info">
+                              <div className="destination-name">{point.name}</div>
+                              <div className="destination-category">{point.category}</div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -92,7 +171,7 @@ const TripPanel: React.FC<TripPanelProps> = ({
 
         {allTrips.length > 1 && (
           <div className="alternative-trips">
-            <h4>🔄 Alternative Routes</h4>
+            <h4>🔄 Alternative Route</h4>
             <div className="alternative-trips-list">
               {allTrips
                 .filter(trip => trip.id !== currentTrip.route.id)

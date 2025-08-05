@@ -171,4 +171,78 @@ export const calculateTripRouteGeometry = (distances: RouteDistance[]): Array<[n
   }
 
   return geometry;
+};
+
+export interface TripRouteSegment {
+  from: string;
+  to: string;
+  fromCoordinates: [number, number]; // [lat, lng]
+  toCoordinates: [number, number]; // [lat, lng]
+  distance: number; // in meters
+  duration: number; // in minutes
+  geometry: Array<[number, number]>; // Mapbox route coordinates
+  steps: RouteStep[];
+}
+
+export const calculateTripRouteSegments = async (
+  tripPoints: Array<{ id: string; latitude: number; longitude: number }>,
+  userLocation: { latitude: number; longitude: number }
+): Promise<TripRouteSegment[]> => {
+  const segments: TripRouteSegment[] = [];
+
+  // Add user location as starting point
+  const allPoints = [
+    { id: 'user', latitude: userLocation.latitude, longitude: userLocation.longitude },
+    ...tripPoints
+  ];
+
+  // Calculate individual route segments between consecutive points
+  for (let i = 0; i < allPoints.length - 1; i++) {
+    const from = allPoints[i];
+    const to = allPoints[i + 1];
+
+    try {
+      const routeData = await getWalkingRoute(
+        from.latitude, from.longitude,
+        to.latitude, to.longitude
+      );
+
+      const segment: TripRouteSegment = {
+        from: from.id,
+        to: to.id,
+        fromCoordinates: [from.latitude, from.longitude],
+        toCoordinates: [to.latitude, to.longitude],
+        distance: routeData.distance,
+        duration: routeData.duration,
+        geometry: routeData.geometry,
+        steps: routeData.steps
+      };
+
+      segments.push(segment);
+
+    } catch (error) {
+      console.error(`Error calculating route segment from ${from.id} to ${to.id}:`, error);
+      
+      // Fallback to straight-line distance
+      const fallbackDistance = calculateStraightLineDistance(
+        from.latitude, from.longitude,
+        to.latitude, to.longitude
+      );
+      
+      const segment: TripRouteSegment = {
+        from: from.id,
+        to: to.id,
+        fromCoordinates: [from.latitude, from.longitude],
+        toCoordinates: [to.latitude, to.longitude],
+        distance: fallbackDistance,
+        duration: Math.ceil(fallbackDistance / 80), // Assume 80m/min walking speed
+        geometry: [[from.longitude, from.latitude], [to.longitude, to.latitude]],
+        steps: []
+      };
+
+      segments.push(segment);
+    }
+  }
+
+  return segments;
 }; 

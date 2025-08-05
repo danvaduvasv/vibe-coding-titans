@@ -82,7 +82,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               <p className="example-prompts">
                 <strong>Try:</strong> "I want a 3-hour cultural tour with lunch"<br/>
                 <strong>Or:</strong> "Plan a half-day adventure with coffee stops"<br/>
-                <strong>Note:</strong> I'll create 2 personalized trip options for you
+                <strong>Note:</strong> I'll create a personalized trip option for you
               </p>
             </div>
           )}

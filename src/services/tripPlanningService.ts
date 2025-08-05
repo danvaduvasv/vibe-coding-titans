@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { calculateWalkingDistances, type RouteDistance } from './tripRoutingService';
+import { calculateWalkingDistances, calculateTripRouteSegments, type RouteDistance, type TripRouteSegment } from './tripRoutingService';
 
 export interface TripPoint {
   id: string;
@@ -21,6 +21,7 @@ export interface TripRoute {
   estimatedCost?: number;
   difficulty?: 'easy' | 'moderate' | 'challenging';
   routeGeometry?: Array<[number, number]>; // Mapbox route coordinates
+  routeSegments?: TripRouteSegment[]; // Individual route segments with turn-by-turn data
 }
 
 export interface TripPlanningRequest {
@@ -31,6 +32,7 @@ export interface TripPlanningRequest {
     accommodation: Array<{ id: string; name: string; category: string; latitude: number; longitude: number; description: string }>;
   };
   userLocation: { latitude: number; longitude: number };
+  searchRadius: number; // Add search radius to validate points
   routeDistances?: Array<{ from: string; to: string; distance: number; duration: number }>;
 }
 
@@ -41,92 +43,107 @@ const openai = new OpenAI({
 
 export const generateTripPlan = async (request: TripPlanningRequest): Promise<TripRoute[]> => {
   try {
-    // First, calculate real walking distances between all points
+    // Optimize: Only calculate distances for points that are likely to be used
     const allPoints = [
       ...request.availablePoints.historical,
       ...request.availablePoints.food,
       ...request.availablePoints.accommodation
     ];
 
-    const routingData = await calculateWalkingDistances(allPoints, request.userLocation);
+    // Limit points to reduce API costs - take top 10 most relevant points
+    const limitedPoints = allPoints.slice(0, 10);
     
-    // Create a distance lookup for AI
-    const distanceInfo = routingData.distances.map(d => 
+    const routingData = await calculateWalkingDistances(limitedPoints, request.userLocation);
+    
+    // Create a compact distance lookup for AI
+    const distanceInfo = routingData.distances.slice(0, 15).map(d => 
       `${d.from} to ${d.to}: ${Math.round(d.distance)}m (${d.duration}min)`
     ).join(', ');
 
     // Store routing data for later use
     request.routeDistances = routingData.distances;
 
-    const systemPrompt = `You are an expert tourism guide and trip planner. Your task is to create personalized leisure trips based on user requests and available points of interest.
+    // Optimize: Filter and create compact point data for AI (only within search radius)
+    const filteredHistorical = filterValidAndRelevantPoints(
+      request.availablePoints.historical, 
+      request.userInput, 
+      request.userLocation, 
+      request.searchRadius, 
+      3
+    );
+    const filteredFood = filterValidAndRelevantPoints(
+      request.availablePoints.food, 
+      request.userInput, 
+      request.userLocation, 
+      request.searchRadius, 
+      3
+    );
+    const filteredAccommodation = filterValidAndRelevantPoints(
+      request.availablePoints.accommodation, 
+      request.userInput, 
+      request.userLocation, 
+      request.searchRadius, 
+      2
+    );
 
-IMPORTANT RULES:
-1. Only respond with valid JSON format
-2. Create exactly 2 different trip options for each request
-3. Each trip should include a mix of historical attractions and food/coffee breaks
-4. Estimate realistic visit durations (15-45 minutes for attractions, 30-60 minutes for food)
-5. Use the provided real walking distances and times between points
-6. Consider user preferences for trip length, transportation, and interests
-7. If no specific time is mentioned, default to 4-hour trips
-8. Include walking routes between points
-9. Suggest appropriate food/coffee stops based on timing
+    const compactHistorical = filteredHistorical.map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      lat: p.latitude,
+      lng: p.longitude
+    }));
 
-AVAILABLE POINTS:
-Historical: ${JSON.stringify(request.availablePoints.historical)}
-Food: ${JSON.stringify(request.availablePoints.food)}
-Accommodation: ${JSON.stringify(request.availablePoints.accommodation)}
+    const compactFood = filteredFood.map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      lat: p.latitude,
+      lng: p.longitude
+    }));
 
-USER LOCATION: ${request.userLocation.latitude}, ${request.userLocation.longitude}
+    const compactAccommodation = filteredAccommodation.map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      lat: p.latitude,
+      lng: p.longitude
+    }));
 
-REAL WALKING DISTANCES (from Mapbox):
-${distanceInfo}
+    const systemPrompt = `Create 1 personalized trip and one additional trip based on user request and available points.
 
-RESPONSE FORMAT:
-{
-  "trips": [
-    {
-      "id": "trip_1",
-      "name": "Cultural Heritage Walk",
-      "description": "A 3-hour cultural exploration...",
-      "points": [
-        {
-          "id": "point_1",
-          "name": "Historical Museum",
-          "category": "historical",
-          "latitude": 40.7128,
-          "longitude": -74.0060,
-          "visitDuration": 45,
-          "description": "Explore ancient artifacts..."
-        }
-      ],
-      "totalDuration": 180,
-      "totalDistance": 2500,
-      "estimatedCost": 25,
-      "difficulty": "easy"
-    }
-  ]
-}`;
+RULES:
+- Respond with valid JSON only
+- Include 4-8 points max
+- Mix historical + food/coffee
+- Visit duration: 15-45min attractions, 30-60min food
+- Default 4 hours if no time specified
+- Use provided walking distances
+- Only use points within search radius (${request.searchRadius}m from user location)
 
-    const userPrompt = `Create 3 personalized trip options for this request: "${request.userInput}"
+POINTS (all within ${request.searchRadius}m radius):
+H: ${JSON.stringify(compactHistorical)}
+F: ${JSON.stringify(compactFood)}
+A: ${JSON.stringify(compactAccommodation)}
 
-Consider:
-- Trip length preferences (if mentioned)
-- Transportation method (walking, cycling, etc.)
-- Interests (cultural, food, adventure, etc.)
-- Realistic timing for each stop
-- Food/coffee breaks at appropriate intervals
-- Walking routes between locations
+LOC: ${request.userLocation.latitude}, ${request.userLocation.longitude}
+DIST: ${distanceInfo}
 
-Provide 3 different trip options with varying themes and durations.`;
+FORMAT:
+{"trips":[{"id":"t1","name":"Trip Name","description":"Brief description","points":[{"id":"p1","name":"Point Name","category":"historical","latitude":40.7,"longitude":-74.0,"visitDuration":45,"description":"Brief description"}],"totalDuration":180,"totalDistance":2500,"estimatedCost":25,"difficulty":"easy"}]}`;
+
+    const userPrompt = `Plan trip: "${request.userInput}". Include 4-8 points, mix historical + food, use walking distances.`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo", // Cheaper model
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
       ],
-      temperature: 0.7,
-      max_tokens: 2000
+      temperature: 0.5, // Lower temperature for more focused responses
+      max_tokens: 800, // Reduced token limit
+      presence_penalty: 0.1, // Reduce repetition
+      frequency_penalty: 0.1 // Reduce repetition
     });
 
     const content = response.choices[0]?.message?.content;
@@ -139,7 +156,8 @@ Provide 3 different trip options with varying themes and durations.`;
     const trips = parsedResponse.trips || [];
 
     // Add real routing data to each trip
-    return trips.map((trip: any) => addRealRoutingData(trip, request.routeDistances || []));
+    const processedTrips = await Promise.all(trips.map((trip: any) => addRealRoutingData(trip, request.routeDistances || [], request.userLocation)));
+    return processedTrips;
 
   } catch (error) {
     console.error('Error generating trip plan:', error);
@@ -156,6 +174,65 @@ export const parseTripKeywords = (userInput: string) => {
     interests: extractInterests(input),
     budget: extractBudget(input)
   };
+};
+
+// Calculate distance between two points using Haversine formula
+const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+  const R = 6371e3; // Earth's radius in meters
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lng2 - lng1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // Distance in meters
+};
+
+// Filter points within search radius and prioritize by relevance
+const filterValidAndRelevantPoints = (
+  points: any[], 
+  userInput: string, 
+  userLocation: { latitude: number; longitude: number },
+  searchRadius: number,
+  maxPoints: number = 5
+) => {
+  const input = userInput.toLowerCase();
+  const keywords = input.split(' ').filter(word => word.length > 2);
+  
+  return points
+    .map(point => {
+      // Calculate distance from user location
+      const distance = calculateDistance(
+        userLocation.latitude, 
+        userLocation.longitude, 
+        point.latitude, 
+        point.longitude
+      );
+      
+      // Check if point is within search radius
+      const isWithinRadius = distance <= searchRadius;
+      
+      // Calculate relevance score
+      const pointText = `${point.name} ${point.category} ${point.description || ''}`.toLowerCase();
+      const relevanceScore = keywords.reduce((score, keyword) => {
+        return score + (pointText.includes(keyword) ? 1 : 0);
+      }, 0);
+      
+      return { 
+        ...point, 
+        relevanceScore, 
+        distance,
+        isWithinRadius 
+      };
+    })
+    .filter(point => point.isWithinRadius) // Only include points within radius
+    .sort((a, b) => b.relevanceScore - a.relevanceScore) // Sort by relevance
+    .slice(0, maxPoints)
+    .map(({ relevanceScore, distance, isWithinRadius, ...point }) => point); // Remove helper fields
 };
 
 const extractDuration = (input: string): number => {
@@ -196,30 +273,20 @@ const extractBudget = (input: string): string => {
   return 'moderate';
 };
 
-const addRealRoutingData = (trip: any, routeDistances: RouteDistance[]): TripRoute => {
+const addRealRoutingData = async (trip: any, _routeDistances: RouteDistance[], userLocation: { latitude: number; longitude: number }): Promise<TripRoute> => {
   // Use OpenAI's provided total distance and duration
   const totalDistance = trip.totalDistance || 0;
   const totalDuration = trip.totalDuration || 0;
   const routeGeometry: Array<[number, number]> = [];
 
-  // Add user location as starting point
-  const allTripPoints = [
-    { id: 'user', latitude: 0, longitude: 0 }, // Will be replaced with actual user location
-    ...trip.points
-  ];
+  // Calculate individual route segments for turn-by-turn navigation
+  const routeSegments = await calculateTripRouteSegments(trip.points, userLocation);
 
   // Build route geometry from real routing data
-  for (let i = 0; i < allTripPoints.length - 1; i++) {
-    const from = allTripPoints[i];
-    const to = allTripPoints[i + 1];
-    
-    const routeData = routeDistances.find(d => 
-      (d.from === from.id && d.to === to.id) || 
-      (d.from === to.id && d.to === from.id)
-    );
-
-    if (routeData && routeData.geometry) {
-      routeGeometry.push(...routeData.geometry);
+  for (let i = 0; i < routeSegments.length; i++) {
+    const segment = routeSegments[i];
+    if (segment.geometry) {
+      routeGeometry.push(...segment.geometry);
     }
   }
 
@@ -227,6 +294,7 @@ const addRealRoutingData = (trip: any, routeDistances: RouteDistance[]): TripRou
     ...trip,
     totalDistance,
     totalDuration,
-    routeGeometry
+    routeGeometry,
+    routeSegments
   };
 }; 

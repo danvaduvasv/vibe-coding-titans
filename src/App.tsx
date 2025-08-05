@@ -229,7 +229,8 @@ function App() {
       const trips = await generateTripPlan({
         userInput,
         availablePoints,
-        userLocation: { latitude, longitude }
+        userLocation: { latitude, longitude },
+        searchRadius: searchRadius
       });
 
       setAllTrips(trips);
@@ -564,6 +565,9 @@ function App() {
                     isTripMode={isTripMode}
                   />
                 )}
+
+
+
 
               {/* Map Help */}
               <div className="map-help-main">

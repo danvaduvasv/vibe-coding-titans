@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import type { TripRoute } from '../services/tripPlanningService';
-import type { RouteDistance } from '../services/tripRoutingService';
+import type { TripRouteSegment } from '../services/tripRoutingService';
 import './TripTurnByTurn.css';
 
 interface TripTurnByTurnProps {
   trip: TripRoute;
-  routeDistances: RouteDistance[];
+  routeSegments: TripRouteSegment[];
   onClose: () => void;
 }
 
 const TripTurnByTurn: React.FC<TripTurnByTurnProps> = ({
   trip,
-  routeDistances,
+  routeSegments,
   onClose
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -25,19 +25,19 @@ const TripTurnByTurn: React.FC<TripTurnByTurnProps> = ({
   };
 
   const formatDuration = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0) {
+    if (minutes >= 60) {
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
       return `${hours}h ${mins}m`;
     }
-    return `${mins}m`;
+    return `${minutes}m`;
   };
 
   const getDirectionIcon = (instruction: string): string => {
     const lowerInstruction = instruction.toLowerCase();
-    if (lowerInstruction.includes('right')) return '↱';
-    if (lowerInstruction.includes('left')) return '↰';
-    if (lowerInstruction.includes('straight') || lowerInstruction.includes('continue')) return '↑';
+    if (lowerInstruction.includes('turn right')) return '↱';
+    if (lowerInstruction.includes('turn left')) return '↰';
+    if (lowerInstruction.includes('continue') || lowerInstruction.includes('straight')) return '↑';
     if (lowerInstruction.includes('u-turn')) return '↻';
     if (lowerInstruction.includes('slight right')) return '↱';
     if (lowerInstruction.includes('slight left')) return '↰';
@@ -46,14 +46,17 @@ const TripTurnByTurn: React.FC<TripTurnByTurnProps> = ({
     return '→';
   };
 
-  const allSteps = routeDistances.flatMap((route, routeIndex) => {
-    const steps = route.steps || [];
+  // Flatten all steps from all segments
+  const allSteps = routeSegments.flatMap((segment, segmentIndex) => {
+    const steps = segment.steps || [];
     return steps.map((step, stepIndex) => ({
       ...step,
-      routeIndex,
+      segmentIndex,
       stepIndex,
       isDestination: stepIndex === steps.length - 1,
-      destinationName: trip.points[routeIndex]?.name || 'Unknown'
+      destinationName: trip.points[segmentIndex]?.name || 'Unknown',
+      segmentDistance: segment.distance,
+      segmentDuration: segment.duration
     }));
   });
 
@@ -71,83 +74,77 @@ const TripTurnByTurn: React.FC<TripTurnByTurnProps> = ({
     }
   };
 
+  const progressPercentage = ((currentStepIndex + 1) / allSteps.length) * 100;
+
+  if (!currentStep) return null;
+
   return (
     <div className="trip-turn-by-turn">
-      <div className="turn-by-turn-header">
+      <div className="trip-turn-by-turn-header">
         <h3>🗺️ Trip Navigation</h3>
-        <button className="turn-by-turn-close-btn" onClick={onClose}>
+        <button className="trip-turn-by-turn-close-btn" onClick={onClose}>
           ✕
         </button>
       </div>
 
-      <div className="turn-by-turn-content">
-        {!isExpanded ? (
-          <div className="minimized-view">
-            <div className="next-turn">
-              <div className="turn-icon">
-                {currentStep ? getDirectionIcon(currentStep.instruction) : '📍'}
-              </div>
-              <div className="turn-info">
-                <div className="turn-instruction">
-                  {currentStep ? currentStep.instruction : 'Start your trip'}
-                </div>
-                <div className="turn-details">
-                  {currentStep && (
-                    <>
-                      {formatDistance(currentStep.distance)} • {formatDuration(currentStep.duration)}
-                      {currentStep.isDestination && (
-                        <span className="destination-marker"> • {currentStep.destinationName}</span>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-            <button 
-              className="expand-btn"
-              onClick={() => setIsExpanded(true)}
-            >
-              📋 Show Full Route
-            </button>
+      <div className="trip-turn-by-turn-content">
+        {/* Minimized View - Next Turn */}
+        <div className="next-turn-view">
+          <div className="next-turn-icon">
+            {getDirectionIcon(currentStep.instruction)}
           </div>
-        ) : (
-          <div className="expanded-view">
+          <div className="next-turn-info">
+            <div className="next-turn-instruction">{currentStep.instruction}</div>
+            <div className="next-turn-distance">
+              {formatDistance(currentStep.distance)} • {formatDuration(currentStep.duration)}
+            </div>
+          </div>
+          <button 
+            className="expand-btn"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {isExpanded ? '▼' : '▲'}
+          </button>
+        </div>
+
+        {/* Expanded View - Full Route */}
+        {isExpanded && (
+          <div className="full-route-view">
             <div className="route-progress">
               <div className="progress-bar">
                 <div 
-                  className="progress-fill"
-                  style={{ width: `${((currentStepIndex + 1) / allSteps.length) * 100}%` }}
-                />
+                  className="progress-fill" 
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
               </div>
               <div className="progress-text">
                 Step {currentStepIndex + 1} of {allSteps.length}
               </div>
             </div>
 
-            <div className="current-step">
-              <div className="step-header">
-                <div className="step-icon">
-                  {currentStep ? getDirectionIcon(currentStep.instruction) : '📍'}
-                </div>
-                <div className="step-info">
-                  <div className="step-instruction">
-                    {currentStep ? currentStep.instruction : 'Start your trip'}
+            <div className="route-steps">
+              {allSteps.map((step, index) => (
+                <div 
+                  key={`${step.segmentIndex}-${step.stepIndex}`}
+                  className={`route-step ${index === currentStepIndex ? 'current' : ''} ${step.isDestination ? 'destination' : ''}`}
+                >
+                  <div className="step-icon">
+                    {step.isDestination ? '📍' : getDirectionIcon(step.instruction)}
                   </div>
-                  <div className="step-details">
-                    {currentStep && (
-                      <>
-                        {formatDistance(currentStep.distance)} • {formatDuration(currentStep.duration)}
-                        {currentStep.isDestination && (
-                          <span className="destination-marker"> • {currentStep.destinationName}</span>
-                        )}
-                      </>
-                    )}
+                  <div className="step-info">
+                    <div className="step-instruction">{step.instruction}</div>
+                    <div className="step-details">
+                      {formatDistance(step.distance)} • {formatDuration(step.duration)}
+                      {step.isDestination && (
+                        <span className="destination-name"> → {step.destinationName}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
 
-            <div className="step-navigation">
+            <div className="route-navigation">
               <button 
                 className="nav-btn"
                 onClick={handlePreviousStep}
@@ -163,37 +160,6 @@ const TripTurnByTurn: React.FC<TripTurnByTurnProps> = ({
                 Next →
               </button>
             </div>
-
-            <div className="full-route">
-              <h4>📍 Full Route</h4>
-              <div className="route-steps">
-                {allSteps.map((step, index) => (
-                  <div 
-                    key={`${step.routeIndex}-${step.stepIndex}`}
-                    className={`route-step ${index === currentStepIndex ? 'active' : ''}`}
-                    onClick={() => setCurrentStepIndex(index)}
-                  >
-                    <div className="step-number">{index + 1}</div>
-                    <div className="step-content">
-                      <div className="step-instruction">{step.instruction}</div>
-                      <div className="step-details">
-                        {formatDistance(step.distance)} • {formatDuration(step.duration)}
-                        {step.isDestination && (
-                          <span className="destination-marker"> • {step.destinationName}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button 
-              className="minimize-btn"
-              onClick={() => setIsExpanded(false)}
-            >
-              📋 Minimize
-            </button>
           </div>
         )}
       </div>

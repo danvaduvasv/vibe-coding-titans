@@ -358,6 +358,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
                       align-items: center;
                       justify-content: center;
                       box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                      cursor: pointer;
                     ">
                       <span style="
                         color: white;
@@ -372,6 +373,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
                   iconAnchor: [20, 20],
                   popupAnchor: [0, -20]
                 })}
+
               >
                 <Popup>
                   <div className="trip-point-popup">
@@ -379,6 +381,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
                     <p><strong>Category:</strong> {point.category}</p>
                     <p><strong>Duration:</strong> {Math.floor(point.visitDuration / 60)}h {point.visitDuration % 60}m</p>
                     <p>{point.description}</p>
+
                   </div>
                 </Popup>
               </Marker>
