@@ -333,7 +333,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>ChronoGuide</h1>
+        <h1>Histowalk</h1>
         <p>Discover historical treasures around you</p>
       </header>
 

@@ -1,10 +1,10 @@
 # Scripts Directory
 
-This directory contains automation scripts for the ChronoGuide App project.
+This directory contains automation scripts for the Histowalk App project.
 
 ## 📦 package-and-publish.sh
 
-A comprehensive release automation script that handles the complete CI/CD pipeline for publishing ChronoGuide to AWS ECR.
+A comprehensive release automation script that handles the complete CI/CD pipeline for publishing Histowalk to AWS ECR.
 
 ### What it does:
 
@@ -105,7 +105,7 @@ git push
 
 # Output:
 # ╔══════════════════════════════════════════════╗
-# ║           ChronoGuide - Release Tool         ║
+# ║           Histowalk - Release Tool         ║
 # ╚══════════════════════════════════════════════╝
 #
 # [INFO] Starting release process...
@@ -226,7 +226,7 @@ git push origin --delete v1.0.0
 
 ## 🚀 deploy-version.sh
 
-A comprehensive deployment script that deploys specific versions of ChronoGuide to AWS App Runner environments.
+A comprehensive deployment script that deploys specific versions of Histowalk to AWS App Runner environments.
 
 ### What it does:
 
@@ -303,7 +303,7 @@ Before deploying, you MUST create a secret in AWS Secrets Manager for each envir
 # For development environment
 aws secretsmanager create-secret \
   --name "/secrets/develop-chronoguide" \
-  --description "Environment variables for ChronoGuide develop environment" \
+  --description "Environment variables for Histowalk develop environment" \
   --secret-string '{
     "VITE_OPENAI_API_KEY": "your-openai-api-key",
     "VITE_GEOAPIFY_API_KEY": "your-geoapify-api-key",
@@ -316,7 +316,7 @@ aws secretsmanager create-secret \
 # For QA environment
 aws secretsmanager create-secret \
   --name "/secrets/qa-chronoguide" \
-  --description "Environment variables for ChronoGuide qa environment" \
+  --description "Environment variables for Histowalk qa environment" \
   --secret-string '{
     "VITE_OPENAI_API_KEY": "your-qa-openai-api-key",
     "VITE_GEOAPIFY_API_KEY": "your-qa-geoapify-api-key",
@@ -329,7 +329,7 @@ aws secretsmanager create-secret \
 # For production environment
 aws secretsmanager create-secret \
   --name "/secrets/prod-chronoguide" \
-  --description "Environment variables for ChronoGuide prod environment" \
+  --description "Environment variables for Histowalk prod environment" \
   --secret-string '{
     "VITE_OPENAI_API_KEY": "your-prod-openai-api-key",
     "VITE_GEOAPIFY_API_KEY": "your-prod-geoapify-api-key",
@@ -452,7 +452,7 @@ aws secretsmanager create-secret \
 
 # Output:
 # ╔══════════════════════════════════════════════╗
-# ║        ChronoGuide - Deployment Tool         ║
+# ║        Histowalk - Deployment Tool         ║
 # ╚══════════════════════════════════════════════╝
 #
 # [INFO] Select target environment:

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Runtime environment variable injection for Vite app
-echo "🚀 Starting ChronoGuide App..."
+echo "🚀 Starting Histowalk App..."
 
 # Create runtime config file with environment variables
 cat > ./dist/config.js << EOF

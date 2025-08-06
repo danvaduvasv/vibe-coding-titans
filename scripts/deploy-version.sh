@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ChronoGuide - Deploy Version Script
+# Histowalk - Deploy Version Script
 # This script deploys specific versions to AWS App Runner environments
 
 set -euo pipefail  # Exit on error, undefined vars, pipe failures
@@ -434,7 +434,7 @@ check_secrets_manager() {
         echo -e "${YELLOW}To create the secret, run:${NC}"
         echo "aws secretsmanager create-secret \\"
         echo "  --name '$SECRET_NAME' \\"
-        echo "  --description 'Environment variables for ChronoGuide $ENVIRONMENT environment' \\"
+        echo "  --description 'Environment variables for Histowalk $ENVIRONMENT environment' \\"
         echo "  --secret-string '{\"VITE_OPENAI_API_KEY\":\"your-openai-key\",\"VITE_GEOAPIFY_API_KEY\":\"your-geoapify-key\",\"VITE_MAPBOX_API_KEY\":\"your-mapbox-key\",\"VITE_ELEVENLABS_API_KEY\":\"your-elevenlabs-key\",\"VITE_ENABLE_ELEVENLABS\":\"true\",\"VITE_MEGATRON_VOICE_ID\":\"your-megatron-voice-id\",\"VITE_FREEMAN_VOICE_ID\":\"your-freeman-voice-id\"}' \\"
         echo "  --region '$AWS_REGION'"
         echo
@@ -735,7 +735,7 @@ deploy() {
 # Main function
 main() {
     echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║        ChronoGuide - Deployment Tool         ║${NC}"
+    echo -e "${BLUE}║        Histowalk - Deployment Tool         ║${NC}"
     echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
     echo
     

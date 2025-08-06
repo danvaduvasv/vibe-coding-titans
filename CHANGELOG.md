@@ -1,10 +1,43 @@
 # Changelog
 
-All notable changes to ChronoGuide will be documented in this file.
+All notable changes to Histowalk will be documented in this file.
 
 ## [Unreleased] - 2024-01-XX
 
 ### Added
+- **🚶 Starting Point System**: Complete starting point functionality with persistent storage
+  - Click anywhere on map to set custom starting point for searches and trips
+  - Walking man icon (🚶) for all starting point functionality
+  - Recenter map functionality - centers map on starting point location
+  - Remove starting point option in side menu below "Clear Trip"
+  - Trip integration - starting point used for trip planning instead of current location
+  - Search integration - starting point used as search center when set
+  - Home integration - home location can be set as starting point
+  - Visual consistency - red starting point marker with walking man icon
+  - Persistent storage across browser sessions
+
+- **📚 Trip Point Historical Context**: Enhanced trip point popups with AI-generated content
+  - Historical significance for historical category trip points
+  - Fun facts for historical category trip points
+  - Smart loading - content loads when popup opens
+  - AI-powered content generation using OpenAI
+  - Consistent styling with existing historical spot popups
+  - Loading states and error handling
+
+- **🎨 Icon System Updates**: Consistent icon usage across the application
+  - Walking man icon (🚶) for all starting point functionality
+  - Location pin icon (📍) for current GPS location button
+  - Red starting point markers with walking man icons
+  - Green background for current location button
+  - Visual distinction between different marker types
+
+- **🔄 Starting Point Functionality Redesign**: Improved UX for starting point management
+  - Map controls button changed from "Remove" to "Recenter at starting point"
+  - Popup button changed from "Remove" to "Recenter map at starting point"
+  - Remove functionality moved to side menu for better organization
+  - Clear separation between recenter and remove actions
+  - Better visual feedback and user experience
+
 - **🤖 AI-Powered Trip Planning**: Complete trip planning system with OpenAI integration
   - Chat interface for natural language trip requests
   - AI trip advisor that considers user interests and preferences
@@ -89,14 +122,18 @@ All notable changes to ChronoGuide will be documented in this file.
 - **📱 Trip Panel UX**: Improved navigation experience with minimized view
 
 ### Technical Improvements
-- **📦 New Hooks**: `useFavourites.ts`, `useHome.ts`, and `useTrip.ts` for state management
+- **📦 New Hooks**: `useFavourites.ts`, `useHome.ts`, `useTrip.ts`, and `useStartingPoint.ts` for state management
 - **🎯 Type Safety**: Full TypeScript support for all new features
-- **💾 Local Storage**: Persistent data storage for favourites, home location, and trips
-- **🎨 CSS Enhancements**: New styles for trip elements, minimized panel, and navigation
-- **🔧 Component Updates**: Enhanced components with trip planning and navigation functionality
+- **💾 Local Storage**: Persistent data storage for favourites, home location, trips, and starting points
+- **🎨 CSS Enhancements**: New styles for trip elements, minimized panel, navigation, and starting points
+- **🔧 Component Updates**: Enhanced components with trip planning, navigation, and starting point functionality
 - **🤖 AI Services**: New trip planning and routing services with OpenAI and Mapbox integration
 - **📊 Error Handling**: Robust error handling with specific error messages and fallback mechanisms
 - **🎨 JSON Validation**: Comprehensive JSON parsing and validation for AI responses
+- **🚶 Starting Point Components**: New components for starting point markers and popups
+- **📚 Trip Point Enhancements**: Enhanced trip point popups with historical context loading
+- **🎨 Icon System**: Consistent icon usage with walking man and location pin icons
+- **🔄 UX Improvements**: Better separation of recenter and remove functionality
 
 ### Fixed
 - **🎯 Spacing Consistency**: Map Controls items now have consistent 6px spacing

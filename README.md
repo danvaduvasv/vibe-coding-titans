@@ -1,4 +1,4 @@
-# 🗺️ ChronoGuide - Historical Discovery App
+# 🗺️ Histowalk - Historical Discovery App
 
 A modern React application that helps you discover historical places, food & beverage spots, and accommodation around your location with interactive maps and AI-enhanced information.
 
@@ -17,11 +17,14 @@ A modern React application that helps you discover historical places, food & bev
 - **Distance Calculation**: Real-time distance from your location to each spot
 - **⭐ Favourites System**: Save and manage your favorite locations with local storage
 - **🏠 Home Location**: Set and navigate to your home location with persistent storage
+- **🚶 Starting Point System**: Set custom starting points for searches and trip planning
 - **🤖 AI-Powered Trip Planning**: Intelligent trip generation with OpenAI integration
 - **🗺️ Trip Mode**: Focused navigation with route visualization and turn-by-turn guidance
 - **📱 Minimized Trip Panel**: Compact navigation view with expandable step details
 - **🎯 Smart Route Segments**: Individual route calculations with accurate distances and durations
 - **🏠 Home-Aware Trip Planning**: AI considers home location for circular trip suggestions
+- **📚 Historical Significance**: AI-generated historical context for trip points
+- **🎭 Voice Narration**: Character-based voice transformations for enhanced storytelling
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Modern Aesthetics**: Glass morphism design with gradients and smooth animations
 - **Compact Header**: Optimized header height for better space utilization
@@ -64,7 +67,7 @@ A modern React application that helps you discover historical places, food & bev
 
 ### Quick Start with Docker
 
-The easiest way to run ChronoGuide is using Docker Compose:
+The easiest way to run Histowalk is using Docker Compose:
 
 ```bash
 # Clone the repository (if not already done)
@@ -230,16 +233,27 @@ When you first visit the app, your browser will ask for location permissions. Ma
 - **🔄 Alternative Routes**: Easy switching between trip options
 - **🎨 Blue Theme**: Distinct blue color scheme for trip elements
 
+### Trip Point Enhancements
+- **📚 Historical Significance**: AI-generated historical context for historical category points
+- **🎭 Fun Facts**: AI-generated interesting facts for historical category points
+- **🚶 Walking Man Icons**: Consistent 🚶 icon for all starting point functionality
+- **🎨 Visual Consistency**: Red starting point markers with walking man icons
+- **📱 Enhanced Popups**: Trip point popups include historical context when applicable
+- **🔄 Smart Loading**: Historical significance and fun facts load on popup open
+
 ## 🗺️ Map Controls
 
 - **🖱️ Scroll** to zoom in/out
 - **🖐️ Click and drag** to position the map center at your area of interest
+- **📍 Click anywhere on map** to set a custom starting point for searches and trips
 - **🎯 Click your location marker** to see detailed location information and set as home
+- **🚶 Click starting point marker** to recenter map on starting point location
 - **🔍 Click "Find Historical Spots"** button to search within your selected radius centered on the map
 - **🙈 Click "Show/Hide Radius"** to toggle the visual search area circle
 - **➕ Click historical spot markers** (+ signs) to see historical details, significance, and real-time GPS distance
 - **⭐ Click star buttons** in popups to add/remove locations from favourites
 - **🏠 Home marker** appears on map when home location is set (different from current location)
+- **🚶 Starting point marker** appears on map when custom starting point is set (red with walking man icon)
 - **🎨 Color-coded markers** by category (Architecture, Military, Religious, Cultural, etc.)
 - **✕ Click "Clear"** button to remove historical spots and bounds from the map
 - **🚗 Click "Get Route"** in popups to calculate navigation directions
@@ -247,6 +261,7 @@ When you first visit the app, your browser will ask for location permissions. Ma
 - **⭐ Click "Favourites"** filter to show only your saved locations
 - **🎯 Click "Current Trip"** to enter trip mode and view route visualization
 - **💬 Click chat button** to start AI-powered trip planning
+- **🚶 Click "Remove Starting Point"** in side menu to clear custom starting point
 - **Zoom controls** available in the top-left corner of the map
 
 ## 🛠️ Built With
@@ -395,6 +410,18 @@ Personal home location management:
 - **Local storage persistence** - home location saved across sessions
 - **Smart visibility** - home marker only shows when different from current location
 - **Golden theme** - consistent styling with home icon and buttons
+
+### 🚶 Starting Point System
+
+- **📍 Click anywhere on map** to set a custom starting point for searches and trips
+- **🚶 Walking man icon** - consistent 🚶 icon for all starting point functionality
+- **🔄 Recenter functionality** - map controls button centers map on starting point
+- **🗑️ Remove option** - side menu button to remove starting point when no longer needed
+- **🎯 Trip integration** - starting point used for trip planning instead of current location
+- **🔍 Search integration** - starting point used as search center when set
+- **💾 Persistent storage** - starting point saved across browser sessions
+- **🏠 Home integration** - home location can be set as starting point
+- **🎨 Visual consistency** - red starting point marker with walking man icon
 
 ### 🤖 AI-Powered Trip Planning
 Intelligent trip generation with OpenAI integration:

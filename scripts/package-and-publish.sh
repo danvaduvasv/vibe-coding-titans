@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ChronoGuide - Package and Publish Script
+# Histowalk - Package and Publish Script
 # This script tags Git code, builds Docker image, and publishes to AWS ECR
 
 set -euo pipefail  # Exit on error, undefined vars, pipe failures
@@ -293,7 +293,7 @@ usage() {
 # Main function
 main() {
     echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║           ChronoGuide - Release Tool         ║${NC}"
+    echo -e "${BLUE}║           Histowalk - Release Tool         ║${NC}"
     echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
     echo
     

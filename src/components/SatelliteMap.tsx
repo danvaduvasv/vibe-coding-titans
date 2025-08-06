@@ -2,20 +2,21 @@ import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
 import { Icon, divIcon } from 'leaflet';
 import type { Map as LeafletMap } from 'leaflet';
-import HistoricalSpotMarker from './HistoricalSpotMarker';
-import FoodBeverageMarker from './FoodBeverageMarker';
-import AccommodationMarker from './AccommodationMarker';
-import BoundsOverlay from './BoundsOverlay';
-import MapInstanceCapture from './MapInstanceCapture';
-import MapSearchButton from './MapSearchButton';
-import MapClickPopup from './MapClickPopup';
-import StartingPointMarker from './StartingPointMarker';
-import HomeLocationMarker from './HomeLocationMarker';
 import type { HistoricalSpot } from '../types/HistoricalSpot';
 import type { FoodBeverageSpot } from '../types/FoodBeverageSpot';
 import type { AccommodationSpot } from '../types/AccommodationSpot';
 import type { Route } from '../services/routingService';
 import type { CurrentTrip } from '../hooks/useTrip';
+import { getLocationDetails } from '../services/openaiService';
+import MapSearchButton from './MapSearchButton';
+import HistoricalSpotMarker from './HistoricalSpotMarker';
+import FoodBeverageMarker from './FoodBeverageMarker';
+import AccommodationMarker from './AccommodationMarker';
+import HomeLocationMarker from './HomeLocationMarker';
+import StartingPointMarker from './StartingPointMarker';
+import MapClickPopup from './MapClickPopup';
+import BoundsOverlay from './BoundsOverlay';
+import MapInstanceCapture from './MapInstanceCapture';
 import 'leaflet/dist/leaflet.css';
 
 delete (Icon.Default.prototype as any)._getIconUrl;
@@ -119,6 +120,9 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
   const [map, setMap] = useState<LeafletMap | null>(null);
   const [clickedLocation, setClickedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showClickPopup, setShowClickPopup] = useState(false);
+  
+  // State for trip point details
+  const [tripPointDetails, setTripPointDetails] = useState<{ [key: string]: { funFact: string | null; historicalSignificance: string | null; loading: boolean } }>({});
 
   const handleMapReady = (mapInstance: LeafletMap) => {
     setMap(mapInstance);
@@ -155,6 +159,44 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
   const handleSetHomeAsStartingPoint = () => {
     if (homeLocation && onSetStartingPoint) {
       onSetStartingPoint(homeLocation.latitude, homeLocation.longitude);
+    }
+  };
+
+  const handleTripPointPopupOpen = async (point: any) => {
+    // Only load details for historical category points
+    if (point.category.toLowerCase().includes('historical') && !tripPointDetails[point.id]) {
+      setTripPointDetails(prev => ({
+        ...prev,
+        [point.id]: { funFact: null, historicalSignificance: null, loading: true }
+      }));
+
+      try {
+        const details = await getLocationDetails(
+          point.name, 
+          point.latitude, 
+          point.longitude, 
+          point.category
+        );
+        
+        setTripPointDetails(prev => ({
+          ...prev,
+          [point.id]: { 
+            funFact: details.funFact, 
+            historicalSignificance: details.historicalSignificance, 
+            loading: false 
+          }
+        }));
+      } catch (error) {
+        console.error('Failed to load trip point details:', error);
+        setTripPointDetails(prev => ({
+          ...prev,
+          [point.id]: { 
+            funFact: 'This location has its own unique history and stories worth discovering.', 
+            historicalSignificance: 'This location holds important historical value.', 
+            loading: false 
+          }
+        }));
+      }
     }
   };
 
@@ -355,6 +397,9 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
               iconAnchor: [20, 20],
               popupAnchor: [0, -20]
             })}
+            eventHandlers={{
+              click: () => handleTripPointPopupOpen(point)
+            }}
           >
             <Popup>
               <div className="trip-point-popup">
@@ -365,6 +410,22 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
                   <br />
                   Visit Duration: {point.visitDuration} minutes
                 </div>
+                {tripPointDetails[point.id]?.loading ? (
+                  <div className="trip-point-loading">Loading details...</div>
+                ) : (
+                  <>
+                    {tripPointDetails[point.id]?.funFact && (
+                      <div className="trip-point-fun-fact">
+                        <strong>Fun Fact:</strong> {tripPointDetails[point.id]?.funFact}
+                      </div>
+                    )}
+                    {tripPointDetails[point.id]?.historicalSignificance && (
+                      <div className="trip-point-historical-significance">
+                        <strong>Historical Significance:</strong> {tripPointDetails[point.id]?.historicalSignificance}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </Popup>
           </Marker>

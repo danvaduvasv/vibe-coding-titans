@@ -964,7 +964,8 @@ body {
 
 /* Trip Point Popup Styles */
 .trip-point-popup {
-  min-width: 200px;
+  max-width: 300px;
+  font-size: 14px;
 }
 
 .trip-point-popup h4 {
@@ -975,13 +976,47 @@ body {
 }
 
 .trip-point-popup p {
-  margin: 4px 0;
-  font-size: 13px;
+  margin: 8px 0;
+  color: #475569;
   line-height: 1.4;
 }
 
 .trip-point-popup strong {
-  color: #374151;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.trip-point-loading {
+  color: #6b7280;
+  font-style: italic;
+  margin: 8px 0;
+  padding: 8px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border-left: 3px solid #3b82f6;
+}
+
+.trip-point-fun-fact,
+.trip-point-historical-significance {
+  margin: 12px 0;
+  padding: 8px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border-left: 3px solid #10b981;
+}
+
+.trip-point-historical-significance {
+  border-left-color: #f59e0b;
+}
+
+.trip-point-fun-fact strong,
+.trip-point-historical-significance strong {
+  color: #1e293b;
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Alternative Trip Point Popup Styles */
