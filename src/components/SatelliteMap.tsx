@@ -158,12 +158,6 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
     }
   };
 
-  const handleRemoveStartingPoint = () => {
-    if (onRemoveStartingPoint) {
-      onRemoveStartingPoint();
-    }
-  };
-
   return (
     <div className="map-container" style={{ position: 'relative' }}>
       <MapContainer
@@ -235,7 +229,7 @@ const SatelliteMap: React.FC<SatelliteMapProps> = ({
           <StartingPointMarker
             latitude={startingPoint.latitude}
             longitude={startingPoint.longitude}
-            onRemove={handleRemoveStartingPoint}
+            onRecenter={onRemoveStartingPoint}
           />
         )}
 

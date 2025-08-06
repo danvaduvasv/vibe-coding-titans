@@ -62,7 +62,7 @@ const MapClickPopup: React.FC<MapClickPopupProps> = ({
               onClick={onSetStartingPoint}
               title="Set this location as starting point for searches and trips"
             >
-              🎯 Set as Starting Point
+              🚶 Set as Starting Point
             </button>
             {onSetHome && (
               <button 

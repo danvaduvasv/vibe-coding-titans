@@ -56,9 +56,9 @@ const MapSearchButton: React.FC<MapSearchButtonProps> = ({
           <button 
             className="remove-starting-point-button-overlay"
             onClick={onRemoveStartingPoint}
-            title="Remove starting point"
+            title="Recenter map at starting point"
           >
-            📍
+            🚶
           </button>
         )}
         
@@ -68,7 +68,7 @@ const MapSearchButton: React.FC<MapSearchButtonProps> = ({
           disabled={!map || userLocation.latitude === null || userLocation.longitude === null}
           title="Return to your current GPS location"
         >
-          🎯
+          📍
         </button>
         
         <button 

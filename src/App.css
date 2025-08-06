@@ -503,13 +503,13 @@ body {
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 5px 8px; /* Reduced from 8px 12px (33% smaller) */
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
   min-width: 40px;
-  height: 40px;
+  height: 27px; /* Reduced from 40px (33% smaller) */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -588,7 +588,7 @@ body {
   background: white;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
-  padding: 16px;
+  padding: 11px; /* Reduced from 16px (33% smaller) */
   display: flex;
   align-items: center;
   gap: 12px;
@@ -646,7 +646,7 @@ body {
   background: white;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
-  padding: 16px;
+  padding: 11px; /* Reduced from 16px (33% smaller) */
   display: flex;
   align-items: center;
   gap: 12px;
@@ -690,7 +690,7 @@ body {
 }
 
 .radius-select {
-  padding: 10px 16px;
+  padding: 7px 11px; /* Reduced from 10px 16px (33% smaller) */
   border: 2px solid #e2e8f0;
   border-radius: 8px;
   background: white;
@@ -2069,18 +2069,51 @@ body {
   pointer-events: auto;
 }
 
-/* Recenter Button - Red with transparent background */
+/* Starting Point Marker - Red */
+.leaflet-marker-icon.leaflet-zoom-animated.leaflet-interactive {
+  filter: hue-rotate(0deg) saturate(1.5) brightness(1.2);
+}
+
+/* Target starting point markers specifically */
+.leaflet-marker-icon[src*="marker"] {
+  filter: hue-rotate(0deg) saturate(1.5) brightness(1.2);
+}
+
+/* Blue Location Pin Icon */
+.blue-location-pin {
+  width: 25px;
+  height: 25px;
+  background: #3b82f6;
+  border-radius: 55% 0% 80% 50%;
+  transform: rotate(-225deg);
+  position: relative;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.blue-location-pin::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  top: 6px;
+  left: 6px;
+  transform: rotate(45deg);
+}
+
+/* Recenter Button - Green with transparent background */
 .recenter-button-overlay {
   width: 50px;
   height: 50px;
   border: none;
   border-radius: 50%;
-  background: rgba(220, 38, 38, 0.9);
+  background: rgba(34, 197, 94, 0.9);
   color: white;
   font-size: 20px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2088,9 +2121,9 @@ body {
 }
 
 .recenter-button-overlay:hover {
-  background: rgba(220, 38, 38, 1);
+  background: rgba(34, 197, 94, 1);
   transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
 }
 
 .recenter-button-overlay:disabled {

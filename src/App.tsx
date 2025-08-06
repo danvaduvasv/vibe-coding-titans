@@ -125,6 +125,12 @@ function App() {
     clearStartingPoint();
   };
 
+  const handleRecenterAtStartingPoint = () => {
+    if (startingPoint && map) {
+      map.setView([startingPoint.latitude, startingPoint.longitude], map.getZoom());
+    }
+  };
+
   const handleMapReady = (mapInstance: LeafletMap) => {
     setMap(mapInstance);
   };
@@ -472,6 +478,17 @@ function App() {
                   <span className="control-text">Clear Trip</span>
                 </button>
               )}
+
+              {startingPoint && (
+                <button 
+                  className="control-button"
+                  onClick={handleRemoveStartingPoint}
+                  title="Remove starting point"
+                >
+                  <span className="control-icon">🚶</span>
+                  <span className="control-text">Remove Starting Point</span>
+                </button>
+              )}
             </div>
 
             {/* Error Display */}
@@ -547,7 +564,7 @@ function App() {
                   isTripMode={isTripMode}
                   startingPoint={startingPoint}
                   onSetStartingPoint={handleSetStartingPoint}
-                  onRemoveStartingPoint={handleRemoveStartingPoint}
+                  onRemoveStartingPoint={handleRecenterAtStartingPoint}
                 />
                 
                 {/* Chat Button */}

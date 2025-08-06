@@ -5,50 +5,49 @@ import { divIcon } from 'leaflet';
 interface StartingPointMarkerProps {
   latitude: number;
   longitude: number;
-  onRemove: () => void;
+  onRecenter?: () => void;
 }
 
 const StartingPointMarker: React.FC<StartingPointMarkerProps> = ({ 
   latitude, 
   longitude, 
-  onRemove
+  onRecenter
 }) => {
+  const redMarkerIcon = divIcon({
+    html: `
+      <div style="
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        <span style="
+          color: #dc2626;
+          font-size: 36px;
+          font-weight: bold;
+          line-height: 1;
+          filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.3));
+        ">🚶</span>
+      </div>
+    `,
+    className: 'starting-point-marker',
+    iconSize: [48, 48],
+    iconAnchor: [24, 24],
+    popupAnchor: [0, -24]
+  });
+
   return (
     <Marker 
       position={[latitude, longitude]}
-      icon={divIcon({
-        html: `
-          <div style="
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            border: 3px solid white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-            cursor: pointer;
-            transition: transform 0.2s ease;
-          " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-            <span style="
-              color: white;
-              font-size: 16px;
-              font-weight: bold;
-              line-height: 1;
-            ">📍</span>
-          </div>
-        `,
-        className: 'starting-point-marker',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -16]
-      })}
+      icon={redMarkerIcon}
     >
       <Popup>
         <div className="starting-point-popup">
           <div className="starting-point-info">
-            <strong>🎯 Starting Point</strong>
+            <strong>🚶 Starting Point</strong>
             <br />
             Latitude: {latitude.toFixed(6)}
             <br />
@@ -57,13 +56,15 @@ const StartingPointMarker: React.FC<StartingPointMarkerProps> = ({
             <em>Used for searches and trip planning</em>
           </div>
           <div className="starting-point-buttons">
-            <button 
-              className="remove-starting-point-button"
-              onClick={onRemove}
-              title="Remove starting point"
-            >
-              ❌ Remove Starting Point
-            </button>
+            {onRecenter && (
+              <button 
+                className="remove-starting-point-button"
+                onClick={onRecenter}
+                title="Recenter map at starting point"
+              >
+                🚶 Recenter map at starting point
+              </button>
+            )}
           </div>
         </div>
       </Popup>

@@ -61,7 +61,7 @@ const HomeLocationMarker: React.FC<HomeLocationMarkerProps> = ({
                 onClick={onSetAsStartingPoint}
                 title="Set home as starting point"
               >
-                🎯 Set as Starting Point
+                🚶 Set as Starting Point
               </button>
             </div>
           )}
