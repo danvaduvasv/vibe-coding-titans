@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { TripRoute } from '../services/tripPlanningService';
 
-const TRIP_STORAGE_KEY = 'chronoguide_current_trip';
+const TRIP_STORAGE_KEY = 'histowalk_current_trip';
 
 export interface CurrentTrip {
   route: TripRoute;

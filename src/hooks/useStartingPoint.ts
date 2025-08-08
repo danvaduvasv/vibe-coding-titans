@@ -5,7 +5,7 @@ interface StartingPoint {
   longitude: number;
 }
 
-const STORAGE_KEY = 'chronoguide_starting_point';
+const STORAGE_KEY = 'histowalk_starting_point';
 
 export const useStartingPoint = () => {
   const [startingPoint, setStartingPoint] = useState<StartingPoint | null>(null);

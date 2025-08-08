@@ -10,7 +10,7 @@ export interface FavouriteItem {
   timestamp: number;
 }
 
-const FAVOURITES_STORAGE_KEY = 'chronoguide_favourites';
+const FAVOURITES_STORAGE_KEY = 'histowalk_favourites';
 
 export const useFavourites = () => {
   const [favourites, setFavourites] = useState<FavouriteItem[]>([]);

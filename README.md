@@ -109,11 +109,11 @@ docker-compose down
 To build and run the production version:
 
 ```bash
-# Build the production image
-docker build -t chronoguide .
+# Build the Docker image
+docker build -t histowalk .
 
-# Run the production container
-docker run -p 3000:3000 --env-file .env chronoguide
+# Run the container
+docker run -p 3000:3000 --env-file .env histowalk
 
 # Or with Docker Compose
 docker-compose -f docker-compose.yml up --build
@@ -144,8 +144,8 @@ docker-compose logs -f               # Follow logs
 docker-compose restart               # Restart services
 
 # Production
-docker build -t chronoguide .        # Build image
-docker run -p 3000:3000 chronoguide # Run container
+docker build -t histowalk .        # Build image
+docker run -p 3000:3000 histowalk # Run container
 docker stop $(docker ps -q)          # Stop all containers
 
 # Maintenance

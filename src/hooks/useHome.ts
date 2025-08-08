@@ -6,7 +6,7 @@ export interface HomeLocation {
   timestamp: number;
 }
 
-const HOME_STORAGE_KEY = 'chronoguide_home';
+const HOME_STORAGE_KEY = 'histowalk_home';
 
 export const useHome = () => {
   const [homeLocation, setHomeLocation] = useState<HomeLocation | null>(null);
